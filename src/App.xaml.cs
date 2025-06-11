@@ -25,13 +25,13 @@ namespace KS2Drive
 
         public App()
         {
-            bool MutexAcquisitionSuccess = false;
-            UnicityMutex = new Mutex(true, "KS2.Drive", out MutexAcquisitionSuccess);
-            if (!MutexAcquisitionSuccess)
-            {
-                MessageBox.Show("Another instance of this program is already runnning.", "KS² Drive");
-                App.Current.Shutdown();
-            }
+            //bool MutexAcquisitionSuccess = false;
+            //UnicityMutex = new Mutex(true, "KS2.Drive", out MutexAcquisitionSuccess);
+            //if (!MutexAcquisitionSuccess)
+            //{
+            //    MessageBox.Show("Another instance of this program is already runnning.", "KS² Drive");
+            //    App.Current.Shutdown();
+            //}
 
             #region Loading configuration
 
@@ -48,7 +48,7 @@ namespace KS2Drive
                     return;
                 }
             }
-
+            
             ConfigurationFilePath = Path.Combine(ConfigurationFolderPath, "config.json");
             this.AppConfiguration = Configuration.Load(ConfigurationFilePath);
 

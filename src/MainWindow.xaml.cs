@@ -32,7 +32,6 @@ namespace KS2Drive
         public MainWindow()
         {
             InitializeComponent();
-
             AppConfiguration = ((App)Application.Current).AppConfiguration;
 
             AppMenu = (ContextMenu)this.FindResource("NotifierContextMenu");
@@ -126,6 +125,7 @@ namespace KS2Drive
             {
                 MenuConfigure_Click(this, null);
             }
+            //MountDrive();
         }
 
         private void MountDrive()
