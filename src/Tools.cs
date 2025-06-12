@@ -23,9 +23,9 @@ namespace KS2Drive
         public static string Unprotect(string str)
         {
             byte[] protectedData = Convert.FromBase64String(str);
-            var xx = Assembly.GetExecutingAssembly().FullName;
-            byte[] entropy = Encoding.ASCII.GetBytes(Assembly.GetExecutingAssembly().FullName);
-            string data = Encoding.ASCII.GetString(ProtectedData.Unprotect(protectedData, entropy, DataProtectionScope.CurrentUser));
+            string data = Encoding.UTF8.GetString(protectedData);
+            //byte[] entropy = Encoding.ASCII.GetBytes(Assembly.GetExecutingAssembly().FullName);
+            //string data = Encoding.ASCII.GetString(ProtectedData.Unprotect(protectedData, entropy, DataProtectionScope.CurrentUser));
             return data;
         }
 

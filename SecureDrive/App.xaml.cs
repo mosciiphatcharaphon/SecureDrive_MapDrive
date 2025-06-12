@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,12 +42,21 @@ namespace SecureDrive
 
         private void OnMountClicked(object sender, EventArgs e)
         {
-            System.Windows.MessageBox.Show("Mount Drive!");
+            var mainWindow = new MainWindow();
+            mainWindow.Mount();
+            //System.Windows.MessageBox.Show("Mount Drive!");
         }
 
         private void OnUnmountClicked(object sender, EventArgs e)
         {
-            System.Windows.MessageBox.Show("Unmount Drive!");
+            //System.Windows.MessageBox.Show("Unmount Drive!");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "taskkill",
+                Arguments = "/F /IM KS2Drive.exe",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
         }
 
         private void OnConfigClicked(object sender, EventArgs e)

@@ -47,7 +47,8 @@ namespace SecureDrive.Models
     }
     public class Permission 
     {
-        public string URLPath { get; set; }
+        public String URLPath { get; set; }
         public List<String> PermissionFolder { get; set; }
+        public String Drive { get; set; }
     }
 }

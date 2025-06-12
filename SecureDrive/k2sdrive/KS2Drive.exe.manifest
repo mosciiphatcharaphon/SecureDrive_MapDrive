@@ -55,14 +55,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KS2Drive.exe" size="117248">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KS2Drive.exe" size="122368">
       <assemblyIdentity name="KS2Drive" version="0.8.4.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>xBOcSTdSW3vK4Xh8EN6B/EqNUlg5etbd0ZylMJIync4=</dsig:DigestValue>
+        <dsig:DigestValue>jDBQT8eUaARyGGcSXVDbb7xL1qBOIq/GUWQR60KEfok=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -134,7 +134,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>+zgnyxf2dbUlJL9x58doRebTZ9S7krA7Anl8sHPmJ2w=</dsig:DigestValue>
+        <dsig:DigestValue>4Z/N7xsZOG8YgdlLPEVc6dy3WxUCuLXDuj1SAH96Y+Y=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
