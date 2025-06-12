@@ -5,6 +5,10 @@ using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Security.Cryptography;
+using System.Windows.Input;
+using System.Windows.Forms;
+using System.Drawing;
+
 
 namespace SecureDrive
 {
@@ -13,10 +17,11 @@ namespace SecureDrive
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NotifyIcon _notifyIcon;
+
         public MainWindow()
         {
             InitializeComponent();
-
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -46,12 +51,12 @@ namespace SecureDrive
                 }
                 else
                 {
-                    MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error initializing configuration:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"Error initializing configuration:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         public static string Protect(string str)
@@ -70,5 +75,45 @@ namespace SecureDrive
             string data = Encoding.ASCII.GetString(ProtectedData.Unprotect(protectedData, entropy, DataProtectionScope.CurrentUser));
             return data;
         }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            string login = LoginTextBox.Text;
+            string password = PasswordBox.Password;
+            bool autoMount = AutoMountCheckBox.IsChecked == true;
+            bool startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+
+            System.Windows.MessageBox.Show($"Login: {login}\nPassword: {password}\nAuto-mount: {autoMount}\nStart with Windows: {startWithWindows}");
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+       
     }
 }
