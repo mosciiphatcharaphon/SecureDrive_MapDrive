@@ -1,43 +1,14 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
-namespace KS2Drive.Config
+namespace SecureDrive.Models
 {
     public class Configuration
     {
-        public String Path;
-
-        public static Configuration Load(String ConfigurationFilePath)
-        {
-            if (File.Exists(ConfigurationFilePath))
-            {
-                try
-                {
-                    var C = JsonConvert.DeserializeObject<Configuration>(Tools.Unprotect(File.ReadAllText(ConfigurationFilePath)));
-                    C.Path = ConfigurationFilePath;
-                    return C;
-                }
-                catch
-                {
-                    return new Configuration() { IsConfigured = false, HTTPProxyMode = 0, Path = ConfigurationFilePath };
-                }
-            }
-            else
-            {
-                return new Configuration() { IsConfigured = false, HTTPProxyMode = 0, Path = ConfigurationFilePath };
-            }
-        }
-
-        public void Save()
-        {
-            File.WriteAllText(Path, Tools.Protect(JsonConvert.SerializeObject(this)));
-        }
-
         [JsonIgnore]
         public bool IsConfigured { get; set; } = true;
 

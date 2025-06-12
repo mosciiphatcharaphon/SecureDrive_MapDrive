@@ -1,10 +1,20 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SecureDrive.Models;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
-using System.Text;
-using System.Windows;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Xml.Serialization;
+using static SecureDrive.Models.OcsResponseModel;
 
 namespace SecureDrive
 {
@@ -13,46 +23,175 @@ namespace SecureDrive
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string Path = "";
+        private string ServerURL = $"";
+        private string ServerLogin = "";
+        private string ServerPassword = "";
+        private Configuration config = new Configuration();
         public MainWindow()
         {
             InitializeComponent();
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            var pathConfig = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+            var pathConfig = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
             try
             {
                 if (!Directory.Exists(pathConfig))
                 {
                     Directory.CreateDirectory(pathConfig);
                 }
-                var configFilePath = Path.Combine(pathConfig, "config.json");
-                var configContent = "AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAbjVeSaso/kOw+efA/39WlQAAAAACAAAAAAAQZgAAAAEAACAAAACXXV3yfv0gvstvyhsDny6HIG2jOMUn+3R0xMKdaCQHhAAAAAAOgAAAAAIAACAAAAAV0jI+2l+JnHpFk1DJqVUzKGb0AD6+JJcPvAIJ/5ncWzACAACQ4vMTytFZ92KFLdNzQdJv08qX5DRQxgvTb2le7GhsWAc37I1MMjQd3hLjG7FkADTj2RwH1Lg7Dp3nlWsb59tX9Xa/OqL3/TpkiL1labyBp6JQJE4qCZIBZXeNaWdPviWxfN6Hadqh/DCeHStJeSNKEQiA4OqBlkY+9fSBr8AdWXE0bwAFjFF+RRO7TxBAxxa7d9zdS4t21TxZSq1cMjj4Nkl8IrbFkYT2jfZdqwcxEWg56VPAyRseIkcrdpGnxBjhtbrJSb/nwyN0n+yxnCaJY6uLo56ZIqEqogUb0z4wgdoVPmC3e8pyPgHDJ4bDTcwv3qLStu7uojCkEU4xV6roDiFWEzFoVJ3i3dL4+beaLNlRU6ZCKVaf+AaTuaX99SfUb5oBrRPesxBDIskkhuhj3CZ3OxlcOpWAwX+heF1YS6XWc6pHv0bed1eTfmXhTVLfIoVVst7yDAGBdMzgWCuf2UI03EPZvVKEVQp+8auZOeQEF8ObfzcdS55DLMMWJm0hDjPn46QseajZCDp+fD22/SJQKlUGhXbheLyLyFbNY7H1Fe0u5/ierYMo+5K9ncFxWBFNjREP7zYZCuX+YHVjj4mEeViJ2Ab+1+l5YrIE3Elm5IK2YOkStM7+082MOItfEOdLec5g2TDkzzCDB7xSpYkDZxfaYXf31lmIXG9ri5FBujZFV+4qT/ap+naFrdf9sAzeflYl9n4+kp+FXtB7GFYrhuvM0PIzt8nDZzVBbUAAAABITgQsnvP97oC1BM2yh9VV6zHeeJvpNZao1ybWSY/apxbk9U26myC+6azTfKT6KvlKbg1CT4bSa2PhIpPCWDH6";
-                var xx = Unprotect(configContent);
-                File.WriteAllText(configFilePath, configContent);
-                string filepath = Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
-                string filename = "KS2Drive.exe";
-                string fullExePath = Path.Combine(filepath, filename);
-
-                if (File.Exists(fullExePath))
+                Path = System.IO.Path.Combine(pathConfig, "config.json");
+                if (File.Exists(Path)) 
                 {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = fullExePath,
-                        UseShellExecute = true
-                    });
+                    File.Delete(Path);
                 }
-                else
+                string Server = "http://192.168.3.113/remote.php/dav/files/";
+                ServerLogin = "user1";
+                ServerPassword = "P@ssw0rdm1s";
+                OcsResponse res = await GetGroupFolderXml(Server, ServerLogin, ServerPassword);
+                if (res?.Data?.Elements == null)
                 {
-                    MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //เดี๋ยวทำ Log ไว้
+                    return;
+                }
+                List<Configuration> configList = new List<Configuration>();
+                
+                string driveLetter = "E";
+                foreach (var folder in res.Data.Elements)
+                {
+                    var IsDrive = new List<string>();
+                    var groups = folder.GetGroups();
+                    if (groups.Count == 0)
+                    {
+                        config.Permission = new List<string> { "31" };
+                    }
+                    else
+                    {
+                        var permissionList = new List<string>();
+                        foreach (var group in groups)
+                        {
+                            IsDrive.Add(group.Value.IsDrive.ToString());
+                            int permission = group.Value.Permissions;
+                            permissionList.Add(permission.ToString());
+                        }
+                        config.Permission = permissionList.Distinct().ToList();
+                    }
+                    if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
+                    {
+                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
+                        config.VolumeLabel = folder.MountPoint;
+                    }
+                    else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
+                    {
+                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
+                        config.VolumeLabel = folder.MountPoint;
+                    }
+                    // folder ID  = -1 ตือ Main Drive
+                    else if (folder.Id == -1)
+                    {
+                        config.ServerURL = ServerURL;
+                        config.VolumeLabel = $"Drive is {ServerLogin}";
+                    }
+                    if (IsDrive.Contains("1") || folder.Id == -1)
+                    {
+                        config.DriveLetter = GetNextDriveLetter(ref driveLetter);
+                        config.quota = ulong.Parse(folder.Quota.ToString());
+                        config.size = ulong.Parse(folder.Size.ToString());
+                        config.ServerLogin = ServerLogin;
+                        config.ServerPassword = ServerPassword;
+                        File.WriteAllText(Path, Protect(JsonConvert.SerializeObject(config)));
+                        string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
+                        string filename = "KS2Drive.exe";
+                        string fullExePath = System.IO.Path.Combine(filepath, filename);
+                        if (File.Exists(fullExePath))
+                        {
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = fullExePath,
+                                UseShellExecute = true
+                            });
+                        }
+                        else
+                        {
+                            MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        Thread.Sleep(10000);
+                        File.Delete(Path);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error initializing configuration:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+        private string GetNextDriveLetter(ref string currentLetter)
+        {
+            var usedDriveLetters = new HashSet<char>(
+                DriveInfo.GetDrives()
+                         .Select(d => char.ToUpper(d.Name[0]))
+            );
+            char letter;
+            if (currentLetter == null)
+            {
+                letter = 'E';
+            }
+            else
+            {
+                letter = char.ToUpper(currentLetter[0]);
+            }
+
+            while (letter <= 'Z')
+            {
+                if (!usedDriveLetters.Contains(letter))
+                {
+                    currentLetter = $"{letter}:";
+                    return currentLetter.Replace(":", "");
+                }
+                letter++;
+            }
+            throw new InvalidOperationException("No available drive letters from A to Z.");
+        }
+        private async Task<OcsResponse> GetGroupFolderXml(string Server, string ServerLogin, string ServerPassword)
+        {
+            try
+            {
+                ServerURL = $"{Server}{ServerLogin}/";
+                var uri = new Uri(ServerURL);
+                var baseUrl = $"{uri.Scheme}://{uri.Host}";
+                if (!uri.IsDefaultPort)
+                {
+                    baseUrl += $":{uri.Port}";
+                }
+                string username = ServerLogin;
+                string password = ServerPassword;
+                string url = $"{baseUrl}/ocs/v2.php/cloud/users/{username}/groupFolder";
+
+                using (var client = new HttpClient())
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    client.DefaultRequestHeaders.Add("OCS-APIRequest", "true");
+
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    var xml = await response.Content.ReadAsStringAsync();
+                    var serializer = new XmlSerializer(typeof(OcsResponse));
+                    using (var reader = new StringReader(xml))
+                    {
+                        return (OcsResponse)serializer.Deserialize(reader);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return null;
         }
         public static string Protect(string str)
         {
@@ -69,6 +208,18 @@ namespace SecureDrive
             byte[] entropy = Encoding.ASCII.GetBytes(Assembly.GetExecutingAssembly().FullName);
             string data = Encoding.ASCII.GetString(ProtectedData.Unprotect(protectedData, entropy, DataProtectionScope.CurrentUser));
             return data;
+        }
+    }
+    public static class GroupElementsExtensions
+    {
+        public static Dictionary<string, GroupInfo> GetGroups(this GroupElements element)
+        {
+            return element.Groups?.ToGroupDictionary() ?? new Dictionary<string, GroupInfo>();
+        }
+
+        public static GroupInfo GetGroup(this GroupElements element, string groupName)
+        {
+            return element.GetGroups().TryGetValue(groupName, out var group) ? group : null;
         }
     }
 }
