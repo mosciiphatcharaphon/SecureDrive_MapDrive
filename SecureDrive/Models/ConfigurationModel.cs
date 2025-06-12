@@ -45,4 +45,9 @@ namespace SecureDrive.Models
         public ulong quota { get; set; }
         public ulong size { get; set; }
     }
+    public class Permission 
+    {
+        public string URLPath { get; set; }
+        public List<String> PermissionFolder { get; set; }
+    }
 }

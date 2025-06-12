@@ -23,10 +23,11 @@ namespace SecureDrive
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string Path = "";
+        private string PathConfig = "";
         private string ServerURL = $"";
         private string ServerLogin = "";
         private string ServerPassword = "";
+        private string PathPermission = "";    
         private Configuration config = new Configuration();
         public MainWindow()
         {
@@ -36,17 +37,22 @@ namespace SecureDrive
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            var pathConfig = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+            var pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
             try
             {
-                if (!Directory.Exists(pathConfig))
+                if (!Directory.Exists(pathKS2Drive))
                 {
-                    Directory.CreateDirectory(pathConfig);
+                    Directory.CreateDirectory(pathKS2Drive);
                 }
-                Path = System.IO.Path.Combine(pathConfig, "config.json");
-                if (File.Exists(Path)) 
+                PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
+                if (!Directory.Exists(PathPermission))
                 {
-                    File.Delete(Path);
+                    Directory.CreateDirectory(PathPermission);
+                }
+                PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
+                if (File.Exists(PathConfig)) 
+                {
+                    File.Delete(PathConfig);
                 }
                 string Server = "http://192.168.3.113/remote.php/dav/files/";
                 ServerLogin = "user1";
@@ -57,8 +63,6 @@ namespace SecureDrive
                     //เดี๋ยวทำ Log ไว้
                     return;
                 }
-                List<Configuration> configList = new List<Configuration>();
-                
                 string driveLetter = "E";
                 foreach (var folder in res.Data.Elements)
                 {
@@ -102,30 +106,37 @@ namespace SecureDrive
                         config.size = ulong.Parse(folder.Size.ToString());
                         config.ServerLogin = ServerLogin;
                         config.ServerPassword = ServerPassword;
-                        File.WriteAllText(Path, Protect(JsonConvert.SerializeObject(config)));
+                        File.WriteAllText(PathConfig, Protect(JsonConvert.SerializeObject(config)));
+                        string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
+                        var permis = new Permission
+                        {
+                            URLPath = config.ServerURL,
+                            PermissionFolder = config.Permission
+                        };
+                        File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
                         string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
                         string filename = "KS2Drive.exe";
                         string fullExePath = System.IO.Path.Combine(filepath, filename);
-                        if (File.Exists(fullExePath))
-                        {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = fullExePath,
-                                UseShellExecute = true
-                            });
-                        }
-                        else
-                        {
-                            MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                        Thread.Sleep(10000);
-                        File.Delete(Path);
+                        //if (File.Exists(fullExePath))
+                        //{
+                        //    Process.Start(new ProcessStartInfo
+                        //    {
+                        //        FileName = fullExePath,
+                        //        UseShellExecute = true
+                        //    });
+                        //}
+                        //else
+                        //{
+                        //    MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        //}
+                        //Thread.Sleep(10000);
+                        //File.Delete(PathConfig);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error initializing configuration:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error initializing configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private string GetNextDriveLetter(ref string currentLetter)
