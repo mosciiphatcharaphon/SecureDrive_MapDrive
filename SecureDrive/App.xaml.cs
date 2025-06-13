@@ -41,7 +41,6 @@ namespace SecureDrive
             // สร้าง Context Menu
             var contextMenu = new ContextMenuStrip();
             contextMenu.Items.Add("Mount", null, OnMountClicked);
-            contextMenu.Items.Add("Unmount", null, OnUnmountClicked);
             contextMenu.Items.Add("Configuration", null, OnConfigClicked);
             contextMenu.Items.Add("Exit", null, OnExitClicked);
 
@@ -62,6 +61,13 @@ namespace SecureDrive
             var mainWindow = new MainWindow();
             mainWindow.Mount();
             //System.Windows.MessageBox.Show("Mount Drive!");
+
+            // เปลี่ยนเมนู
+            var contextMenu = _notifyIcon.ContextMenuStrip;
+            contextMenu.Items.Clear();
+            contextMenu.Items.Add("Unmount", null, OnUnmountClicked);
+            contextMenu.Items.Add("Exit", null, OnExitClicked);
+
         }
 
         private void OnUnmountClicked(object sender, EventArgs e)
@@ -74,6 +80,14 @@ namespace SecureDrive
                 CreateNoWindow = true,
                 UseShellExecute = false
             });
+
+            // เปลี่ยนเมนู
+            var contextMenu = _notifyIcon.ContextMenuStrip;
+            contextMenu.Items.Clear();
+            contextMenu.Items.Add("Mount", null, OnMountClicked);
+            contextMenu.Items.Add("Configuration", null, OnConfigClicked);
+            contextMenu.Items.Add("Exit", null, OnExitClicked);
+
         }
 
         private void OnConfigClicked(object sender, EventArgs e)

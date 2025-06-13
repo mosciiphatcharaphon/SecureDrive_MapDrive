@@ -55,18 +55,34 @@
                 </Grid.RowDefinitions>
 
                 <!-- Login -->
-                <StackPanel Orientation="Horizontal" Margin="200,20,200,0">
-                    <TextBlock Text="Login" Width="100" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBox x:Name="LoginTextBox" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" />
+                <StackPanel Orientation="Vertical" Margin="200,20,200,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Login" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBox x:Name="LoginTextBox" Grid.Column="1" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" TextChanged="LoginTextBox_TextChanged" />
+                        </Grid>
+                        <TextBlock x:Name="LoginErrorText" Text="กรุณากรอก Login" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
                 </StackPanel>
 
                 <!-- Password -->
-                <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="200,20,200,0">
-                    <TextBlock Text="Password" Width="100" FontSize="16" VerticalAlignment="Center"/>
-                    <PasswordBox x:Name="PasswordBox" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" />
+                <StackPanel Orientation="Vertical" Grid.Row="1" Margin="200,20,200,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Password" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
+                            <PasswordBox x:Name="PasswordBox" Grid.Column="1" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" PasswordChanged="PasswordBox_PasswordChanged" />
+                    </Grid>
+                        <TextBlock x:Name="PasswordErrorText" Text="กรุณากรอก Password" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
                 </StackPanel>
 
-                <!-- Checkboxes -->
+                    <!-- Checkboxes -->
                 <StackPanel Grid.Row="2" Margin="300,20,200,60" Grid.RowSpan="2">
                         <CheckBox x:Name="AutoMountCheckBox" Content="Auto-mount drive" FontSize="16" Margin="0,5" IsChecked="True">
                         <CheckBox.Template>
@@ -127,5 +143,6 @@
             </Grid>
         </Grid>
     </Border>
+        <Grid x:Name="PopupContainer" Visibility="Collapsed" Background="#80000000" />
     </Grid>
 </Window>

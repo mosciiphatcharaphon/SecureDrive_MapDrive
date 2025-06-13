@@ -18,7 +18,8 @@ using static SecureDrive.Models.OcsResponseModel;
 using System.Security.Cryptography;
 using System.Windows.Input;
 using System.Windows.Forms;
-using System.Drawing;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 
 namespace SecureDrive
@@ -145,11 +146,11 @@ namespace SecureDrive
                         string fullExePath = System.IO.Path.Combine(filepath, filename);
                         if (File.Exists(fullExePath))
                         {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = fullExePath,
-                                UseShellExecute = true
-                            });
+                            //Process.Start(new ProcessStartInfo
+                            //{
+                            //    FileName = fullExePath,
+                            //    UseShellExecute = true
+                            //});
                         }
                         else
                         {
@@ -233,11 +234,37 @@ namespace SecureDrive
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            //string ServerURL = "http://192.168.3.113/remote.php/dav/files/";
-            //string ServerLogin = LoginTextBox.Text;
-            //string ServerPassword = PasswordBox.Password;
-            //bool autoMount = AutoMountCheckBox.IsChecked == true;
-            //bool startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+            bool hasError = false;
+
+            // เช็ค Login
+            if (string.IsNullOrWhiteSpace(LoginTextBox.Text))
+            {
+                LoginErrorText.Visibility = Visibility.Visible;
+                hasError = true;
+            }
+            else
+            {
+                LoginErrorText.Visibility = Visibility.Collapsed;
+            }
+
+            // เช็ค Password
+            if (string.IsNullOrWhiteSpace(PasswordBox.Password))
+            {
+                PasswordErrorText.Visibility = Visibility.Visible;
+                hasError = true;
+            }
+            else
+            {
+                PasswordErrorText.Visibility = Visibility.Collapsed;
+            }
+
+            // ถ้าเจอ error ไม่ต้อง save
+            if (hasError)
+            {
+                return;
+            }
+
+            // ถ้าไม่เจอ error ทำการ save ต่อ
             var configSecure = new ConfigSecureDrive
             {
                 ServerURL = "http://192.168.3.113/remote.php/dav/files/",
@@ -246,10 +273,63 @@ namespace SecureDrive
                 AutoMount = (bool)AutoMountCheckBox.IsChecked,
                 StartWithWindows = (bool)StartWithWindowsCheckBox.IsChecked
             };
-            File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
-            this.Close();
 
-            //System.Windows.MessageBox.Show($"Login: {login}\nPassword: {password}\nAuto-mount: {autoMount}\nStart with Windows: {startWithWindows}");
+            ShowSuccessPopup();
+            File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
+        }
+
+        private void ShowSuccessPopup()
+        {
+            var popup = new Border
+            {
+                Width = 300,
+                Height = 100,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CCFFCC")),
+                CornerRadius = new CornerRadius(5),
+                VerticalAlignment = VerticalAlignment.Center,
+                // HorizontalAlignment = HorizontalAlignment.Center,
+                Child = new TextBlock
+                {
+                    Text = "บันทึกข้อมูลสำเร็จ",
+                    FontSize = 16,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Foreground = Brushes.Green,
+                    // HorizontalAlignment = HorizontalAlignment.Center,
+                    TextAlignment = TextAlignment.Center
+                }
+            };
+
+            PopupContainer.Children.Clear();
+            PopupContainer.Children.Add(popup);
+            PopupContainer.Visibility = Visibility.Visible;
+
+            Task.Delay(2000).ContinueWith(_ =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    PopupContainer.Visibility = Visibility.Collapsed;
+                    // ปิดหน้าต่างหลังจากปิด Popup
+                    this.Close();
+                });
+            });
+        }
+
+        // เมื่อเริ่มพิมพ์ใน LoginTextBox
+        private void LoginTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(LoginTextBox.Text))
+            {
+                LoginErrorText.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        // เมื่อเริ่มพิมพ์ใน PasswordBox
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(PasswordBox.Password))
+            {
+                PasswordErrorText.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
