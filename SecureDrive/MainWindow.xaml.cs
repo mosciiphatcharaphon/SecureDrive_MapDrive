@@ -43,6 +43,20 @@ namespace SecureDrive
             {
                 Directory.CreateDirectory(pathKS2Drive);
             }
+            string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+            if (File.Exists(configSecurePath)) 
+            {
+                var configSecureJson = File.ReadAllText(configSecurePath);
+                var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+                if (configSecure != null)
+                {
+                    LoginTextBox.Text = configSecure.ServerLogin;
+                    PasswordBox.Password = configSecure.ServerPassword;
+                    AutoMountCheckBox.IsChecked = configSecure.AutoMount;
+                    StartWithWindowsCheckBox.IsChecked = configSecure.StartWithWindows;
+                }
+
+            }
             
         }
 
