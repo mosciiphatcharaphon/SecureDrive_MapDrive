@@ -35,6 +35,7 @@ namespace SecureDrive
         private string ServerPassword = "";
         private string PathPermission = "";
         private string pathKS2Drive;
+        private string configSecurePath;
         private Configuration config = new Configuration();
         public MainWindow()
         {
@@ -44,7 +45,7 @@ namespace SecureDrive
             {
                 Directory.CreateDirectory(pathKS2Drive);
             }
-            string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+            configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
             if (File.Exists(configSecurePath)) 
             {
                 var configSecureJson = File.ReadAllText(configSecurePath);
@@ -66,99 +67,108 @@ namespace SecureDrive
             
             try
             {
-                PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
-                if (!Directory.Exists(PathPermission))
+                if (File.Exists(configSecurePath))
                 {
-                    Directory.CreateDirectory(PathPermission);
-                }
-                PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
-                if (File.Exists(PathConfig)) 
-                {
-                    File.Delete(PathConfig);
-                }
-                string Server = "http://192.168.3.113/remote.php/dav/files/";
-                ServerLogin = "user1";
-                ServerPassword = "P@ssw0rdm1s";
-                OcsResponse res = await GetGroupFolderXml(Server, ServerLogin, ServerPassword);
-                if (res?.Data?.Elements == null)
-                {
-                    //เดี๋ยวทำ Log ไว้
-                    return;
-                }
-                string driveLetter = "E";
-                foreach (var folder in res.Data.Elements)
-                {
-                    var IsDrive = new List<string>();
-                    var groups = folder.GetGroups();
-                    if (groups.Count == 0)
+                    PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
+                    if (!Directory.Exists(PathPermission))
                     {
-                        config.Permission = new List<string> { "31" };
+                        Directory.CreateDirectory(PathPermission);
                     }
-                    else
+                    PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
+                    if (File.Exists(PathConfig))
                     {
-                        var permissionList = new List<string>();
-                        foreach (var group in groups)
+                        File.Delete(PathConfig);
+                    }
+                    var configSecureJson = File.ReadAllText(configSecurePath);
+                    var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+                    string Server = configSecure.ServerURL;
+                    ServerLogin = configSecure.ServerLogin;
+                    ServerPassword = configSecure.ServerPassword;
+                    OcsResponse res = await GetGroupFolderXml(Server, ServerLogin, ServerPassword);
+                    if (res?.Data?.Elements == null)
+                    {
+                        //เดี๋ยวทำ Log ไว้
+                        return;
+                    }
+                    string driveLetter = "E";
+                    foreach (var folder in res.Data.Elements)
+                    {
+                        var IsDrive = new List<string>();
+                        var groups = folder.GetGroups();
+                        if (groups.Count == 0)
                         {
-                            IsDrive.Add(group.Value.IsDrive.ToString());
-                            int permission = group.Value.Permissions;
-                            permissionList.Add(permission.ToString());
-                        }
-                        config.Permission = permissionList.Distinct().ToList();
-                    }
-                    if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
-                    {
-                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
-                        config.VolumeLabel = folder.MountPoint;
-                    }
-                    else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
-                    {
-                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
-                        config.VolumeLabel = folder.MountPoint;
-                    }
-                    // folder ID  = -1 ตือ Main Drive
-                    else if (folder.Id == -1)
-                    {
-                        config.ServerURL = ServerURL;
-                        config.VolumeLabel = $"Drive is {ServerLogin}";
-                    }
-                    if (IsDrive.Contains("1") || folder.Id == -1)
-                    {
-                        config.DriveLetter = GetNextDriveLetter(ref driveLetter);
-                        config.quota = ulong.Parse(folder.Quota.ToString());
-                        config.size = ulong.Parse(folder.Size.ToString());
-                        config.ServerLogin = ServerLogin;
-                        config.ServerPassword = ServerPassword;
-                        
-                        byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
-                        string data = Convert.ToBase64String(databyte);
-                        File.WriteAllText(PathConfig, data);
-                        //File.WriteAllText(PathConfig, Protect(JsonConvert.SerializeObject(config)));
-                        string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
-                        var permis = new Permission
-                        {
-                            URLPath = config.ServerURL,
-                            PermissionFolder = config.Permission,
-                            Drive = config.DriveLetter
-                        };
-                        File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
-                        string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
-                        string filename = "KS2Drive.exe";
-                        string fullExePath = System.IO.Path.Combine(filepath, filename);
-                        if (File.Exists(fullExePath))
-                        {
-                            //Process.Start(new ProcessStartInfo
-                            //{
-                            //    FileName = fullExePath,
-                            //    UseShellExecute = true
-                            //});
+                            config.Permission = new List<string> { "31" };
                         }
                         else
                         {
-                            //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            var permissionList = new List<string>();
+                            foreach (var group in groups)
+                            {
+                                IsDrive.Add(group.Value.IsDrive.ToString());
+                                int permission = group.Value.Permissions;
+                                permissionList.Add(permission.ToString());
+                            }
+                            config.Permission = permissionList.Distinct().ToList();
                         }
-                        Thread.Sleep(10000);
-                        File.Delete(PathConfig);
+                        if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
+                        {
+                            config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
+                            config.VolumeLabel = folder.MountPoint;
+                        }
+                        else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
+                        {
+                            config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
+                            config.VolumeLabel = folder.MountPoint;
+                        }
+                        // folder ID  = -1 ตือ Main Drive
+                        else if (folder.Id == -1)
+                        {
+                            config.ServerURL = ServerURL;
+                            config.VolumeLabel = $"Drive is {ServerLogin}";
+                        }
+                        if (IsDrive.Contains("1") || folder.Id == -1)
+                        {
+                            config.DriveLetter = GetNextDriveLetter(ref driveLetter);
+                            config.quota = ulong.Parse(folder.Quota.ToString());
+                            config.size = ulong.Parse(folder.Size.ToString());
+                            config.ServerLogin = ServerLogin;
+                            config.ServerPassword = ServerPassword;
+
+                            byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
+                            string data = Convert.ToBase64String(databyte);
+                            File.WriteAllText(PathConfig, data);
+                            //File.WriteAllText(PathConfig, Protect(JsonConvert.SerializeObject(config)));
+                            string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
+                            var permis = new Permission
+                            {
+                                URLPath = config.ServerURL,
+                                PermissionFolder = config.Permission,
+                                Drive = config.DriveLetter
+                            };
+                            File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
+                            string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
+                            string filename = "KS2Drive.exe";
+                            string fullExePath = System.IO.Path.Combine(filepath, filename);
+                            if (File.Exists(fullExePath))
+                            {
+                                Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = fullExePath,
+                                    UseShellExecute = true
+                                });
+                            }
+                            else
+                            {
+                                //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            Thread.Sleep(10000);
+                            File.Delete(PathConfig);
+                        }
                     }
+                }
+                else 
+                {
+                    this.Show();
                 }
             }
             catch (Exception ex)

@@ -35,9 +35,9 @@ namespace KS2Drive
             AppConfiguration = ((App)Application.Current).AppConfiguration;
 
             AppMenu = (ContextMenu)this.FindResource("NotifierContextMenu");
-            ((MenuItem)AppMenu.Items[0]).IsEnabled = AppConfiguration.IsConfigured;
+            //((MenuItem)AppMenu.Items[0]).IsEnabled = AppConfiguration.IsConfigured;
 
-            this.Hide();
+            //this.Hide();
 
             //Check installed WinFSP version
             if (!Tools.IsMsiIntalled(RequiredWinFSP.MsiProductCode))
