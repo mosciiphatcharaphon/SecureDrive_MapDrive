@@ -8,141 +8,91 @@
         Height="450" Width="800" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
+
     <Grid>
         <Border Background="White" CornerRadius="10" Padding="0" HorizontalAlignment="Center">
-        <Grid>
-            <!-- Custom Title Bar -->
+            <Grid>
+
+                <!-- Custom Title Bar -->
                 <Border Background="#CCF0FF" Height="50" VerticalAlignment="Top" MouseDown="TitleBar_MouseDown" CornerRadius="10,10,0,0">
-                <Grid Margin="10,1,10,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Logo -->
-                        <Image Source="/securedrive_logo_new.ico" Width="40" Height="40" VerticalAlignment="Center"/>
-
-                        <!-- Title -->
-                    <TextBlock Grid.Column="1" Text="Configuration" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="10,0,0,0"/>
-
-                    <!-- Minimize Button -->
-                    <!--<Button Grid.Column="2" Content="─" Width="30" Height="30"
-                VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
-                Foreground="Black" Click="MinimizeButton_Click"/>-->
-
-                    <!-- Maximize/Restore Button -->
-                    <!--<Button Grid.Column="3" Content="☐" Width="30" Height="30"
-                VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
-                Foreground="Black" Click="MaximizeButton_Click"/>-->
-
-                    <!-- Close Button -->
-                    <Button Grid.Column="4" Content="X" Width="40" Height="40"
-                VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
-                Foreground="Black" Click="CloseButton_Click"/>
-                </Grid>
-            </Border>
-
-            <!-- Main Content -->
-            <Grid Margin="0,100,0,38">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Login -->
-                <StackPanel Orientation="Vertical" Margin="200,20,200,0">
-                    <Grid>
+                    <Grid Margin="10,1,10,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Login" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
+                        <Image Source="/securedrive_logo_new.ico" Width="40" Height="40" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Configuration" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <Button Grid.Column="4" Content="X" Width="40" Height="40"
+                                VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
+                                Foreground="Black" Click="CloseButton_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- ส่วนข้อความ error -->
+                <TextBlock x:Name="GeneralErrorText"
+                           Text="เกิดข้อผิดพลาด กรุณาตรวจสอบ Login หรือ Password"
+                           Foreground="Red"
+                           Visibility="Collapsed"
+                           FontSize="16"
+                           HorizontalAlignment="Center"
+                           Margin="0,70,0,0"/>
+
+                <!-- Main Content -->
+                <Grid Margin="0,100,0,38">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Login -->
+                    <StackPanel Orientation="Vertical" Margin="200,20,200,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="300"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Login" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
                             <TextBox x:Name="LoginTextBox" Grid.Column="1" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" TextChanged="LoginTextBox_TextChanged" />
                         </Grid>
-                        <TextBlock x:Name="LoginErrorText" Text="กรุณากรอก Login" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
-                </StackPanel>
+                        <TextBlock x:Name="LoginErrorText" Text="กรุณากรอก Login" FontSize="14" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
+                    </StackPanel>
 
-                <!-- Password -->
-                <StackPanel Orientation="Vertical" Grid.Row="1" Margin="200,20,200,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="300"/>
-                        </Grid.ColumnDefinitions>
+                    <!-- Password -->
+                    <StackPanel Orientation="Vertical" Grid.Row="1" Margin="200,20,200,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="300"/>
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="Password" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="Password" Grid.Column="0" FontSize="16" VerticalAlignment="Center"/>
                             <PasswordBox x:Name="PasswordBox" Grid.Column="1" Width="300" Height="40" FontSize="16" VerticalContentAlignment="Center" PasswordChanged="PasswordBox_PasswordChanged" />
-                    </Grid>
-                        <TextBlock x:Name="PasswordErrorText" Text="กรุณากรอก Password" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
-                </StackPanel>
+                        </Grid>
+                        <TextBlock x:Name="PasswordErrorText" Text="กรุณากรอก Password" FontSize="14" Foreground="Red" Visibility="Collapsed" Margin="100,0,0,0" />
+                    </StackPanel>
 
                     <!-- Checkboxes -->
-                <StackPanel Grid.Row="2" Margin="300,20,200,60" Grid.RowSpan="2">
-                        <CheckBox x:Name="AutoMountCheckBox" Content="Auto-mount drive" FontSize="16" Margin="0,5" IsChecked="True">
-                        <CheckBox.Template>
-                            <ControlTemplate TargetType="CheckBox">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <!-- กล่องติ๊กขนาด 20x20 -->
-                                    <Border x:Name="Border" Width="20" Height="20" BorderBrush="Gray" BorderThickness="1"
-                                            Background="White" VerticalAlignment="Center" Margin="0,0,8,0">
-                                        <Path x:Name="CheckMark" Visibility="Collapsed" Stroke="DodgerBlue" StrokeThickness="2" Data="M 4 10 L 8 14 L 16 6" />
-                                    </Border>
-                                    <!-- ข้อความ -->
-                                    <ContentPresenter VerticalAlignment="Center" />
-                                </StackPanel>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsChecked" Value="True">
-                                        <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter TargetName="Border" Property="Background" Value="#EEE" />
-                                        <Setter TargetName="Border" Property="BorderBrush" Value="#AAA" />
-                                        <Setter Property="Foreground" Value="#AAA" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </CheckBox.Template>
-                    </CheckBox>
+                    <StackPanel Grid.Row="2" Margin="300,20,200,60" Grid.RowSpan="2">
+                        <CheckBox x:Name="AutoMountCheckBox" Content="Auto-mount drive" FontSize="16" Margin="0,5" IsChecked="True"/>
+                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" FontSize="16" Margin="0,5" IsChecked="True"/>
+                    </StackPanel>
 
-                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" FontSize="16" Margin="0,5" IsChecked="True">
-                        <CheckBox.Template>
-                            <ControlTemplate TargetType="CheckBox">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border x:Name="Border" Width="20" Height="20" BorderBrush="Gray" BorderThickness="1" Background="White" VerticalAlignment="Center" Margin="0,0,8,0">
-                                        <Path x:Name="CheckMark" Visibility="Collapsed" Stroke="DodgerBlue" StrokeThickness="2" Data="M 4 10 L 8 14 L 16 6" />
-                                    </Border>
-                                    <ContentPresenter VerticalAlignment="Center" />
-                                </StackPanel>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsChecked" Value="True">
-                                        <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter TargetName="Border" Property="Background" Value="#EEE" />
-                                        <Setter TargetName="Border" Property="BorderBrush" Value="#AAA" />
-                                        <Setter Property="Foreground" Value="#AAA" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </CheckBox.Template>
-                    </CheckBox>
-                </StackPanel>
-
-                <!-- Save Button -->
-                <Button Grid.Row="3" Content="Save" Width="100" Height="40" 
-                    Background="#007DBF" Foreground="White" FontWeight="Bold"
-                    HorizontalAlignment="Right" Margin="0,140,50,-37" FontSize="16"
-                    Click="SaveButton_Click"/>
-
+                    <!-- Save Button -->
+                    <Button Grid.Row="3" Content="Save" Width="100" Height="40" 
+                            Background="#007DBF" Foreground="White" FontWeight="Bold"
+                            HorizontalAlignment="Right" Margin="0,140,50,-37" FontSize="16"
+                            Click="SaveButton_Click"/>
+                </Grid>
             </Grid>
-        </Grid>
-    </Border>
+        </Border>
+
         <Grid x:Name="PopupContainer" Visibility="Collapsed" Background="#80000000" />
     </Grid>
 </Window>
