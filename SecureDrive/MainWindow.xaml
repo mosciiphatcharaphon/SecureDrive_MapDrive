@@ -68,7 +68,7 @@
 
                 <!-- Checkboxes -->
                 <StackPanel Grid.Row="2" Margin="300,20,200,60" Grid.RowSpan="2">
-                    <CheckBox x:Name="AutoMountCheckBox" Content="Auto-mount drive" FontSize="16" Margin="0,5">
+                        <CheckBox x:Name="AutoMountCheckBox" Content="Auto-mount drive" FontSize="16" Margin="0,5" IsChecked="True">
                         <CheckBox.Template>
                             <ControlTemplate TargetType="CheckBox">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -94,7 +94,7 @@
                         </CheckBox.Template>
                     </CheckBox>
 
-                    <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" FontSize="16" Margin="0,5" >
+                        <CheckBox x:Name="StartWithWindowsCheckBox" Content="Start with Windows" FontSize="16" Margin="0,5" IsChecked="True">
                         <CheckBox.Template>
                             <ControlTemplate TargetType="CheckBox">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
