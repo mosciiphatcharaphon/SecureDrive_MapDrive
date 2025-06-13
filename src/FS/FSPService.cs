@@ -23,8 +23,8 @@ namespace KS2Drive
         public void Mount(Configuration config)
         {
             davFs = new DavFS(config);
-            davFs.RepositoryActionPerformed += (s, e) => { RepositoryActionPerformed?.Invoke(s, e); };
-            davFs.RepositoryAuthenticationFailed += (s, e) => { RepositoryAuthenticationFailed?.Invoke(s, e); };
+            //davFs.RepositoryActionPerformed += (s, e) => { RepositoryActionPerformed?.Invoke(s, e); };
+            //davFs.RepositoryAuthenticationFailed += (s, e) => { RepositoryAuthenticationFailed?.Invoke(s, e); };
 
             Host = new FileSystemHost(davFs);
             if (Host.Mount($"{config.DriveLetter}:", null, config.SyncOps, 0) < 0) return;
@@ -32,8 +32,8 @@ namespace KS2Drive
 
         public void Unmount()
         {
-            davFs.RepositoryActionPerformed -= (s, e) => { RepositoryActionPerformed?.Invoke(s, e); };
-            davFs.RepositoryAuthenticationFailed -= (s, e) => { RepositoryAuthenticationFailed?.Invoke(s, e); };
+            //davFs.RepositoryActionPerformed -= (s, e) => { RepositoryActionPerformed?.Invoke(s, e); };
+            //davFs.RepositoryAuthenticationFailed -= (s, e) => { RepositoryAuthenticationFailed?.Invoke(s, e); };
 
             Host.Unmount();
             Host = null;
