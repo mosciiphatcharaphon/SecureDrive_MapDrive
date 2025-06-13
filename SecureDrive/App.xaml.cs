@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,10 +18,17 @@ namespace SecureDrive
     public partial class App : System.Windows.Application
     {
         private NotifyIcon _notifyIcon;
+        private string pathKS2Drive = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             InitTrayIcon();
+            if (!Directory.Exists(pathKS2Drive))
+            {
+                Directory.CreateDirectory(pathKS2Drive);
+            }
+            CheckSecureDriveConfig();
+            
         }
 
         private void InitTrayIcon()
@@ -38,6 +46,15 @@ namespace SecureDrive
             contextMenu.Items.Add("Exit", null, OnExitClicked);
 
             _notifyIcon.ContextMenuStrip = contextMenu;
+        }
+        private void CheckSecureDriveConfig()
+        {
+            string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+            if (!System.IO.File.Exists(configSecurePath))
+            {
+                var mainWindow = new MainWindow();
+                mainWindow.Show();
+            }
         }
 
         private void OnMountClicked(object sender, EventArgs e)

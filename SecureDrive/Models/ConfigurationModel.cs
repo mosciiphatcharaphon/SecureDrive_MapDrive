@@ -51,4 +51,12 @@ namespace SecureDrive.Models
         public List<String> PermissionFolder { get; set; }
         public String Drive { get; set; }
     }
+    public class ConfigSecureDrive 
+    {
+        public string ServerURL { get; set; }
+        public string ServerLogin { get; set; }
+        public string ServerPassword { get; set; }
+        public bool AutoMount { get; set; }
+        public bool StartWithWindows { get; set; }
+    }
 }

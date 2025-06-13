@@ -32,22 +32,25 @@ namespace SecureDrive
         private string ServerURL = $"";
         private string ServerLogin = "";
         private string ServerPassword = "";
-        private string PathPermission = "";    
+        private string PathPermission = "";
+        private string pathKS2Drive;
         private Configuration config = new Configuration();
         public MainWindow()
         {
             InitializeComponent();
+            pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+            if (!Directory.Exists(pathKS2Drive))
+            {
+                Directory.CreateDirectory(pathKS2Drive);
+            }
+            
         }
 
         public async void Mount()
         {
-            var pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+            
             try
             {
-                if (!Directory.Exists(pathKS2Drive))
-                {
-                    Directory.CreateDirectory(pathKS2Drive);
-                }
                 PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
                 if (!Directory.Exists(PathPermission))
                 {
@@ -213,31 +216,26 @@ namespace SecureDrive
             }
             return null;
         }
-        public static string Protect(string str)
-        {
-            byte[] entropy = Encoding.ASCII.GetBytes(Assembly.GetExecutingAssembly().FullName);
-            byte[] data = Encoding.ASCII.GetBytes(str);
-            string protectedData = Convert.ToBase64String(ProtectedData.Protect(data, entropy, DataProtectionScope.CurrentUser));
-            return protectedData;
-        }
-
-        public static string Unprotect(string str)
-        {
-            byte[] protectedData = Convert.FromBase64String(str);
-            var xx = Assembly.GetExecutingAssembly().FullName;
-            byte[] entropy = Encoding.ASCII.GetBytes(Assembly.GetExecutingAssembly().FullName);
-            string data = Encoding.ASCII.GetString(ProtectedData.Unprotect(protectedData, entropy, DataProtectionScope.CurrentUser));
-            return data;
-        }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            string login = LoginTextBox.Text;
-            string password = PasswordBox.Password;
-            bool autoMount = AutoMountCheckBox.IsChecked == true;
-            bool startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+            //string ServerURL = "http://192.168.3.113/remote.php/dav/files/";
+            //string ServerLogin = LoginTextBox.Text;
+            //string ServerPassword = PasswordBox.Password;
+            //bool autoMount = AutoMountCheckBox.IsChecked == true;
+            //bool startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
+            var configSecure = new ConfigSecureDrive
+            {
+                ServerURL = "http://192.168.3.113/remote.php/dav/files/",
+                ServerLogin = LoginTextBox.Text,
+                ServerPassword = PasswordBox.Password,
+                AutoMount = (bool)AutoMountCheckBox.IsChecked,
+                StartWithWindows = (bool)StartWithWindowsCheckBox.IsChecked
+            };
+            File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
+            this.Close();
 
-            System.Windows.MessageBox.Show($"Login: {login}\nPassword: {password}\nAuto-mount: {autoMount}\nStart with Windows: {startWithWindows}");
+            //System.Windows.MessageBox.Show($"Login: {login}\nPassword: {password}\nAuto-mount: {autoMount}\nStart with Windows: {startWithWindows}");
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
