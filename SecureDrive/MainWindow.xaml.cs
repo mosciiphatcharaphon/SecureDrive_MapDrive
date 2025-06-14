@@ -142,42 +142,41 @@ namespace SecureDrive
                         config.ServerLogin = ServerLogin;
                         config.ServerPassword = ServerPassword;
 
-                            byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
-                            string data = Convert.ToBase64String(databyte);
-                            File.WriteAllText(PathConfig, data);
-                            string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
-                            var permis = new Permission
+                        byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
+                        string data = Convert.ToBase64String(databyte);
+                        File.WriteAllText(PathConfig, data);
+                        string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
+                        var permis = new Permission
+                        {
+                            URLPath = config.ServerURL,
+                            PermissionFolder = config.Permission,
+                            Drive = config.DriveLetter
+                        };
+                        File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
+                        string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
+                        string filename = "KS2Drive.exe";
+                        string fullExePath = System.IO.Path.Combine(filepath, filename);
+                        if (File.Exists(fullExePath))
+                        {
+                            Process.Start(new ProcessStartInfo
                             {
-                                URLPath = config.ServerURL,
-                                PermissionFolder = config.Permission,
-                                Drive = config.DriveLetter
-                            };
-                            File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
-                            string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
-                            string filename = "KS2Drive.exe";
-                            string fullExePath = System.IO.Path.Combine(filepath, filename);
-                            if (File.Exists(fullExePath))
-                            {
-                                Process.Start(new ProcessStartInfo
-                                {
-                                    FileName = fullExePath,
-                                    UseShellExecute = true
-                                });
-                            }
-                            else
-                            {
-                                //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            }
-                            Thread.Sleep(10000);
-                            File.Delete(PathConfig);
+                                FileName = fullExePath,
+                                UseShellExecute = true
+                            });
                         }
+                        else
+                        {
+                            //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                        Thread.Sleep(10000);
+                        File.Delete(PathConfig);
+
+                    }
+                    else
+                    {
+                        this.Show();
                     }
                 }
-                else 
-                {
-                    this.Show();
-                }
-
                 return true;
             }
             catch (Exception ex)
@@ -186,8 +185,6 @@ namespace SecureDrive
                 return false;
             }
         }
-
-
         private string GetNextDriveLetter(ref string currentLetter)
         {
             var usedDriveLetters = new HashSet<char>(
