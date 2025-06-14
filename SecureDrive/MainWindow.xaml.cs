@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json;
 using SecureDrive.Models;
 using System;
 using System.Collections.Generic;
@@ -9,17 +10,17 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Xml.Serialization;
 using static SecureDrive.Models.OcsResponseModel;
-using System.Security.Cryptography;
-using System.Windows.Input;
-using System.Windows.Forms;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 
 namespace SecureDrive
@@ -137,7 +138,6 @@ namespace SecureDrive
                             byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
                             string data = Convert.ToBase64String(databyte);
                             File.WriteAllText(PathConfig, data);
-                            //File.WriteAllText(PathConfig, Protect(JsonConvert.SerializeObject(config)));
                             string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
                             var permis = new Permission
                             {
@@ -286,6 +286,16 @@ namespace SecureDrive
 
             ShowSuccessPopup();
             File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
+            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            if (StartWithWindowsCheckBox.IsChecked == true)
+            {
+                rkApp.SetValue("SecureDriveAutoMap", System.Reflection.Assembly.GetEntryAssembly().Location);
+            }
+            else 
+            {
+                rkApp.DeleteValue("SecureDriveAutoMap", false);
+            }
+            rkApp.Close();
         }
 
         private void ShowSuccessPopup()

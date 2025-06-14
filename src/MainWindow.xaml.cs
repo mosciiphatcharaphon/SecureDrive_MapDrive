@@ -141,9 +141,9 @@ namespace KS2Drive
             }
 
             ItemsToLog.Clear();
-            ((MenuItem)AppMenu.Items[0]).Header = "_UNMOUNT";
+            //((MenuItem)AppMenu.Items[0]).Header = "_UNMOUNT";
             IsMounted = true;
-            ((MenuItem)AppMenu.Items[2]).IsEnabled = false;
+            //((MenuItem)AppMenu.Items[2]).IsEnabled = false;
             Process.Start($@"{this.AppConfiguration.DriveLetter}:\");
         }
 
