@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,77 +62,85 @@ namespace SecureDrive
             
         }
 
-        public async void Mount()
+        public async Task<bool> Mount()
         {
-            
             try
             {
-                if (File.Exists(configSecurePath))
+                if (!File.Exists(configSecurePath))
                 {
-                    PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
-                    if (!Directory.Exists(PathPermission))
+                    this.Show();
+                    return false;
+                }
+
+                PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
+                if (!Directory.Exists(PathPermission))
+                {
+                    Directory.CreateDirectory(PathPermission);
+                }
+
+                PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
+                if (File.Exists(PathConfig))
+                {
+                    File.Delete(PathConfig);
+                }
+
+                var configSecureJson = File.ReadAllText(configSecurePath);
+                var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+                string Server = configSecure.ServerURL;
+                ServerLogin = configSecure.ServerLogin;
+                ServerPassword = configSecure.ServerPassword;
+
+                OcsResponse res = await GetGroupFolderXml(Server, ServerLogin, ServerPassword);
+                if (res?.Data?.Elements == null)
+                {
+                    // ถ้าไม่สามารถดึงข้อมูลได้
+                    return false;
+                }
+
+                string driveLetter = "E";
+                foreach (var folder in res.Data.Elements)
+                {
+                    var IsDrive = new List<string>();
+                    var groups = folder.GetGroups();
+                    if (groups.Count == 0)
                     {
-                        Directory.CreateDirectory(PathPermission);
+                        config.Permission = new List<string> { "31" };
                     }
-                    PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
-                    if (File.Exists(PathConfig))
+                    else
                     {
-                        File.Delete(PathConfig);
+                        var permissionList = new List<string>();
+                        foreach (var group in groups)
+                        {
+                            IsDrive.Add(group.Value.IsDrive.ToString());
+                            int permission = group.Value.Permissions;
+                            permissionList.Add(permission.ToString());
+                        }
+                        config.Permission = permissionList.Distinct().ToList();
                     }
-                    var configSecureJson = File.ReadAllText(configSecurePath);
-                    var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
-                    string Server = configSecure.ServerURL;
-                    ServerLogin = configSecure.ServerLogin;
-                    ServerPassword = configSecure.ServerPassword;
-                    OcsResponse res = await GetGroupFolderXml(Server, ServerLogin, ServerPassword);
-                    if (res?.Data?.Elements == null)
+
+                    if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
                     {
-                        //เดี๋ยวทำ Log ไว้
-                        return;
+                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
+                        config.VolumeLabel = folder.MountPoint;
                     }
-                    string driveLetter = "E";
-                    foreach (var folder in res.Data.Elements)
+                    else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
                     {
-                        var IsDrive = new List<string>();
-                        var groups = folder.GetGroups();
-                        if (groups.Count == 0)
-                        {
-                            config.Permission = new List<string> { "31" };
-                        }
-                        else
-                        {
-                            var permissionList = new List<string>();
-                            foreach (var group in groups)
-                            {
-                                IsDrive.Add(group.Value.IsDrive.ToString());
-                                int permission = group.Value.Permissions;
-                                permissionList.Add(permission.ToString());
-                            }
-                            config.Permission = permissionList.Distinct().ToList();
-                        }
-                        if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
-                        {
-                            config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
-                            config.VolumeLabel = folder.MountPoint;
-                        }
-                        else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
-                        {
-                            config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
-                            config.VolumeLabel = folder.MountPoint;
-                        }
-                        // folder ID  = -1 ตือ Main Drive
-                        else if (folder.Id == -1)
-                        {
-                            config.ServerURL = ServerURL;
-                            config.VolumeLabel = $"Drive is {ServerLogin}";
-                        }
-                        if (IsDrive.Contains("1") || folder.Id == -1)
-                        {
-                            config.DriveLetter = GetNextDriveLetter(ref driveLetter);
-                            config.quota = ulong.Parse(folder.Quota.ToString());
-                            config.size = ulong.Parse(folder.Size.ToString());
-                            config.ServerLogin = ServerLogin;
-                            config.ServerPassword = ServerPassword;
+                        config.ServerURL = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
+                        config.VolumeLabel = folder.MountPoint;
+                    }
+                    else if (folder.Id == -1)
+                    {
+                        config.ServerURL = ServerURL;
+                        config.VolumeLabel = $"Drive is {ServerLogin}";
+                    }
+
+                    if (IsDrive.Contains("1") || folder.Id == -1)
+                    {
+                        config.DriveLetter = GetNextDriveLetter(ref driveLetter);
+                        config.quota = ulong.Parse(folder.Quota.ToString());
+                        config.size = ulong.Parse(folder.Size.ToString());
+                        config.ServerLogin = ServerLogin;
+                        config.ServerPassword = ServerPassword;
 
                             byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
                             string data = Convert.ToBase64String(databyte);
@@ -170,12 +177,17 @@ namespace SecureDrive
                 {
                     this.Show();
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Error initializing configuration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // log error
+                return false;
             }
         }
+
+
         private string GetNextDriveLetter(ref string currentLetter)
         {
             var usedDriveLetters = new HashSet<char>(
@@ -245,6 +257,7 @@ namespace SecureDrive
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             bool hasError = false;
+            HideGeneralError();
 
             // เช็ค Login
             if (string.IsNullOrWhiteSpace(LoginTextBox.Text))
@@ -380,7 +393,17 @@ namespace SecureDrive
                 this.DragMove();
         }
 
-       
+        public void ShowGeneralError(string message)
+        {
+            GeneralErrorText.Text = message;
+            GeneralErrorText.Visibility = Visibility.Visible;
+        }
+
+        public void HideGeneralError()
+        {
+            GeneralErrorText.Visibility = Visibility.Collapsed;
+        }
+
     }
     public static class GroupElementsExtensions
     {
@@ -393,5 +416,9 @@ namespace SecureDrive
         {
             return element.GetGroups().TryGetValue(groupName, out var group) ? group : null;
         }
+
+
     }
+
+    
 }

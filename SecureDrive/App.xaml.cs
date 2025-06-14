@@ -68,18 +68,33 @@ namespace SecureDrive
             }
         }
 
-        private void OnMountClicked(object sender, EventArgs e)
+        private async void OnMountClicked(object sender, EventArgs e)
         {
+            System.Windows.Forms.MessageBox.Show("กำลังรอ Mount", "Mount", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             var mainWindow = new MainWindow();
-            mainWindow.Mount();
-            //System.Windows.MessageBox.Show("Mount Drive!");
+            bool success = await mainWindow.Mount();
 
-            // เปลี่ยนเมนู
-            var contextMenu = _notifyIcon.ContextMenuStrip;
-            contextMenu.Items.Clear();
-            contextMenu.Items.Add("Unmount", null, OnUnmountClicked);
-            contextMenu.Items.Add("Exit", null, OnExitClicked);
+            if (success)
+            {
 
+                System.Windows.Forms.MessageBox.Show("Mount สำเร็จ", "Mount เรียบร้อย", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Mount สำเร็จ → เปลี่ยนเมนู
+                var contextMenu = _notifyIcon.ContextMenuStrip;
+                contextMenu.Items.Clear();
+                contextMenu.Items.Add("Unmount", null, OnUnmountClicked);
+                contextMenu.Items.Add("Exit", null, OnExitClicked);
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Mount ไม่สำเร็จ", "เกิดข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // เปิดหน้าตั้งค่า Config
+                var configWindow = new MainWindow();
+                // ส่งข้อความ error
+                configWindow.ShowGeneralError("ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบ Login หรือ Password");
+                configWindow.ShowDialog();
+            }
         }
 
         private void OnUnmountClicked(object sender, EventArgs e)
@@ -92,6 +107,8 @@ namespace SecureDrive
                 CreateNoWindow = true,
                 UseShellExecute = false
             });
+
+            System.Windows.Forms.MessageBox.Show("UnMount สำเร็จ", "UnMount เรียบร้อย", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             // เปลี่ยนเมนู
             var contextMenu = _notifyIcon.ContextMenuStrip;
