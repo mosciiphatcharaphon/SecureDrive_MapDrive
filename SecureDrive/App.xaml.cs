@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SecureDrive.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -8,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace SecureDrive
@@ -28,7 +31,7 @@ namespace SecureDrive
                 Directory.CreateDirectory(pathKS2Drive);
             }
             CheckSecureDriveConfig();
-            
+
         }
 
         private void InitTrayIcon()
@@ -49,7 +52,16 @@ namespace SecureDrive
         private void CheckSecureDriveConfig()
         {
             string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
-            if (!System.IO.File.Exists(configSecurePath))
+            if (System.IO.File.Exists(configSecurePath))
+            {
+                var configSecureJson = File.ReadAllText(configSecurePath);
+                var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+                if (configSecure?.StartWithWindows == true && configSecure.AutoMount == true)
+                {
+                    OnMountClicked(null, null);
+                }
+            }
+            else 
             {
                 var mainWindow = new MainWindow();
                 mainWindow.Show();

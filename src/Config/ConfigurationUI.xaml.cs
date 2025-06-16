@@ -149,23 +149,23 @@ namespace KS2Drive.Config
             }
 
             //From : https://stackoverflow.com/questions/5089601/how-to-run-a-c-sharp-application-at-windows-startup
-            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            if (chk_AutoStart.IsChecked == true)
-            {
-                if (ApplicationDeployment.IsNetworkDeployed) //If running from Click-Once link, autostart the Click-Once bootstrap
-                {
-                    rkApp.SetValue("KS2Drive", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + @"\KS2\KS2.WorkflowClient.appref-ms");
-                }
-                else //If portable, autostart the program itself
-                {
-                    rkApp.SetValue("KS2Drive", System.Reflection.Assembly.GetEntryAssembly().Location);
-                }
-            }
-            else
-            {
-                rkApp.DeleteValue("KS2Drive", false);
-            }
-            rkApp.Close();
+            //RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            //if (chk_AutoStart.IsChecked == true)
+            //{
+            //    if (ApplicationDeployment.IsNetworkDeployed) //If running from Click-Once link, autostart the Click-Once bootstrap
+            //    {
+            //        rkApp.SetValue("KS2Drive", Environment.GetFolderPath(Environment.SpecialFolder.Programs) + @"\KS2\KS2.WorkflowClient.appref-ms");
+            //    }
+            //    else //If portable, autostart the program itself
+            //    {
+            //        rkApp.SetValue("KS2Drive", System.Reflection.Assembly.GetEntryAssembly().Location);
+            //    }
+            //}
+            //else
+            //{
+            //    rkApp.DeleteValue("KS2Drive", false);
+            //}
+            //rkApp.Close();
 
             this.AppConfiguration.DriveLetter = CBFreeDrives.SelectedValue.ToString();
             this.AppConfiguration.ServerURL = txtURL.Text;

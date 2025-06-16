@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json;
 using SecureDrive.Models;
 using System;
 using System.Collections.Generic;
@@ -13,13 +14,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Xml.Serialization;
 using static SecureDrive.Models.OcsResponseModel;
-using System.Security.Cryptography;
-using System.Windows.Input;
-using System.Windows.Forms;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 
 namespace SecureDrive
@@ -145,7 +145,6 @@ namespace SecureDrive
                         byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
                         string data = Convert.ToBase64String(databyte);
                         File.WriteAllText(PathConfig, data);
-
                         string filePermission = System.IO.Path.Combine(PathPermission, $"{config.DriveLetter}.json");
                         var permis = new Permission
                         {
@@ -154,30 +153,30 @@ namespace SecureDrive
                             Drive = config.DriveLetter
                         };
                         File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
-
                         string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
                         string filename = "KS2Drive.exe";
                         string fullExePath = System.IO.Path.Combine(filepath, filename);
                         if (File.Exists(fullExePath))
                         {
-                            // ถ้าจะ run ตัว KS2Drive จริง ๆ ค่อย enable code ตรงนี้
-                            // Process.Start(new ProcessStartInfo
-                            // {
-                            //     FileName = fullExePath,
-                            //     UseShellExecute = true
-                            // });
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = fullExePath,
+                                UseShellExecute = true
+                            });
                         }
                         else
                         {
-                            // log error
-                            // MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
-
-                        await Task.Delay(10000); // แทน Thread.Sleep ด้วย await เพื่อไม่ block thread
+                        Thread.Sleep(10000);
                         File.Delete(PathConfig);
+
+                    }
+                    else
+                    {
+                        this.Show();
                     }
                 }
-
                 return true;
             }
             catch (Exception ex)
@@ -186,8 +185,6 @@ namespace SecureDrive
                 return false;
             }
         }
-
-
         private string GetNextDriveLetter(ref string currentLetter)
         {
             var usedDriveLetters = new HashSet<char>(
@@ -299,6 +296,16 @@ namespace SecureDrive
 
             ShowSuccessPopup();
             File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
+            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            if (StartWithWindowsCheckBox.IsChecked == true)
+            {
+                rkApp.SetValue("SecureDriveAutoMap", System.Reflection.Assembly.GetEntryAssembly().Location);
+            }
+            else 
+            {
+                rkApp.DeleteValue("SecureDriveAutoMap", false);
+            }
+            rkApp.Close();
         }
 
         private void ShowSuccessPopup()
