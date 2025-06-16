@@ -56,7 +56,7 @@ namespace SecureDrive
             {
                 var configSecureJson = File.ReadAllText(configSecurePath);
                 var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
-                if (configSecure?.StartWithWindows == true && configSecure.AutoMount == true)
+                if (configSecure.AutoMount == true)
                 {
                     OnMountClicked(null, null);
                 }
