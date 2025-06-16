@@ -58,15 +58,24 @@ namespace SecureDrive
 
         private async void OnMountClicked(object sender, EventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("กำลังรอ Mount", "Mount", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // status:: waiting
+            _notifyIcon.BalloonTipTitle = "กำลัง Mount";
+            _notifyIcon.BalloonTipText = "ไดรฟ์กำลังถูก Mount กรุณารอสักครู่";
+            _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+            _notifyIcon.ShowBalloonTip(100);
 
             var mainWindow = new MainWindow();
             bool success = await mainWindow.Mount();
 
             if (success)
             {
+                // status:: success
+                _notifyIcon.BalloonTipTitle = "Mount เรียบร้อย";
+                _notifyIcon.BalloonTipText = "ไดรฟ์ถูก Mount สำเร็จ";
+                _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                _notifyIcon.ShowBalloonTip(100);
 
-                System.Windows.Forms.MessageBox.Show("Mount สำเร็จ", "Mount เรียบร้อย", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Mount สำเร็จ → เปลี่ยนเมนู
                 var contextMenu = _notifyIcon.ContextMenuStrip;
                 contextMenu.Items.Clear();
@@ -96,7 +105,11 @@ namespace SecureDrive
                 UseShellExecute = false
             });
 
-            System.Windows.Forms.MessageBox.Show("UnMount สำเร็จ", "UnMount เรียบร้อย", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // status:: unmount success
+            _notifyIcon.BalloonTipTitle = "UnMount เรียบร้อย";
+            _notifyIcon.BalloonTipText = "ไดรฟ์ถูก UnMount สำเร็จ";
+            _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+            _notifyIcon.ShowBalloonTip(100);
 
             // เปลี่ยนเมนู
             var contextMenu = _notifyIcon.ContextMenuStrip;
