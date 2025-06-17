@@ -37,7 +37,7 @@ namespace KS2Drive
             AppMenu = (ContextMenu)this.FindResource("NotifierContextMenu");
             //((MenuItem)AppMenu.Items[0]).IsEnabled = AppConfiguration.IsConfigured;
 
-            //this.Hide();
+            this.Hide();
 
             //Check installed WinFSP version
             if (!Tools.IsMsiIntalled(RequiredWinFSP.MsiProductCode))
@@ -108,24 +108,24 @@ namespace KS2Drive
             }
             catch
             {
-                MessageBox.Show("Cannot start WinFSP service. KS² Drive will now close", "", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show("Cannot start WinFSP service. KS² Drive will now close", "", MessageBoxButton.OK, MessageBoxImage.Error);
                 QuitApp();
                 return;
             }
 
             #endregion
 
-            Dispatcher.Invoke(() => AppNotificationIcon.ShowBalloonTip(3000, "KS² Drive", $"KS² Drive has started", System.Windows.Forms.ToolTipIcon.Info));
+            //Dispatcher.Invoke(() => AppNotificationIcon.ShowBalloonTip(3000, "KS² Drive", $"KS² Drive has started", System.Windows.Forms.ToolTipIcon.Info));
 
-            if (this.AppConfiguration.IsConfigured)
-            {
-                if (AppConfiguration.AutoMount) MountDrive();
-            }
-            else
-            {
-                MenuConfigure_Click(this, null);
-            }
-            //MountDrive();
+            //if (this.AppConfiguration.IsConfigured)
+            //{
+            //    if (AppConfiguration.AutoMount) MountDrive();
+            //}
+            //else
+            //{
+            //    MenuConfigure_Click(this, null);
+            //}
+            MountDrive();
         }
 
         private void MountDrive()
@@ -140,7 +140,7 @@ namespace KS2Drive
                 return;
             }
 
-            ItemsToLog.Clear();
+            //ItemsToLog.Clear();
             //((MenuItem)AppMenu.Items[0]).Header = "_UNMOUNT";
             IsMounted = true;
             //((MenuItem)AppMenu.Items[2]).IsEnabled = false;

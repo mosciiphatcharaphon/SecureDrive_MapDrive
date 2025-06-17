@@ -8,12 +8,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Policy;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
 using WebDAVClient.Helpers;
 using FileInfo = Fsp.Interop.FileInfo;
 using VolumeInfo = Fsp.Interop.VolumeInfo;
@@ -46,7 +52,7 @@ namespace KS2Drive.FS
         private String DocumentLibraryPath;
         private ulong Size;
         private ulong FreeSize;
-
+        private string ServerURL;
         private CacheManager Cache;
 
         private const UInt16 MEMFS_SECTOR_SIZE = 4096;
@@ -81,7 +87,7 @@ namespace KS2Drive.FS
 
             this.DAVLogin = config.ServerLogin;
             this.DAVPassword = config.ServerPassword;
-
+            this.ServerURL = config.ServerURL;
             FileNode.Init(this.DocumentLibraryPath, this.WebDAVMode);
             WebDavClient2.Init(this.DAVServer, this.DocumentLibraryPath, this.DAVLogin, this.DAVPassword, config.UseClientCertForAuthentication ? Tools.FindCertificate(config.CertStoreName, config.CertStoreLocation, config.CertSerial) : null);
             Cache = new CacheManager(CacheMode.Enabled, config.PreLoading);
@@ -138,6 +144,7 @@ namespace KS2Drive.FS
             VolumeInfo = default(VolumeInfo);
             //VolumeInfo.TotalSize = MaxFileNodes * (UInt64)MaxFileSize;
             //VolumeInfo.FreeSize = MaxFileNodes * (UInt64)MaxFileSize;
+
             VolumeInfo.TotalSize = Size;
             VolumeInfo.FreeSize = FreeSize;
             //VolumeInfo.SetVolumeLabel("VolumeLabel");
@@ -658,7 +665,12 @@ namespace KS2Drive.FS
             //L = new LogListItem() { Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), Object = CFN.ObjectId, Method = $"Create", File = FileName, Result = "STATUS_SUCCESS" };
             //RepositoryActionPerformed?.Invoke(this, L);
             DebugEnd(OperationId, null, "STATUS_SUCCESS");
-
+            Thread.Sleep(2000);
+            var freeSize = GetNewFreeSizeDrive(RepositoryNewDocumentParentPath);
+            if (freeSize.Result != 0)
+            {
+                this.FreeSize = freeSize.Result;
+            }
             return STATUS_SUCCESS;
 
             /*
@@ -920,6 +932,8 @@ namespace KS2Drive.FS
                         }
                     }
                     string drive = $@"{Drive}:\";
+                    SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, Marshal.StringToHGlobalUni(drive), IntPtr.Zero);
+                    Thread.Sleep(1000);
                     SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, Marshal.StringToHGlobalUni(drive), IntPtr.Zero);
                 }
                 else if ((Flags & CleanupSetAllocationSize) != 0 || (Flags & CleanupSetArchiveBit) != 0 || (Flags & CleanupSetLastWriteTime) != 0)
@@ -1716,7 +1730,7 @@ namespace KS2Drive.FS
         }
         public string GetDriveLetter(string RepositoryNewDocumentParentPath)
         {
-            try 
+            try
             {
                 var permissionList = new Dictionary<String, Boolean>(StringComparer.OrdinalIgnoreCase);
                 string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
@@ -1735,9 +1749,9 @@ namespace KS2Drive.FS
 
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-            
+
             }
             return "";
 
@@ -1826,7 +1840,7 @@ namespace KS2Drive.FS
         }
         public void MessageAlert(string type, string message)
         {
-            MessageBox.Show(message, type, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            System.Windows.Forms.MessageBox.Show(message, type, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             //using (Form topmostForm = new Form())
             //{
             //    topmostForm.StartPosition = FormStartPosition.CenterScreen;
@@ -1842,6 +1856,74 @@ namespace KS2Drive.FS
 
             //    topmostForm.Close();
             //}
+        }
+        private async Task<ulong> GetNewFreeSizeDrive(string driveURL)
+        {
+            try
+            {
+                string configSecurePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive", "configSecure.json");
+                var configSecureJson = File.ReadAllText(configSecurePath);
+                var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+
+                string ServerURL = $"{configSecure.ServerURL}{configSecure.ServerLogin}/";
+                var uri = new Uri(ServerURL);
+                var baseUrl = $"{uri.Scheme}://{uri.Host}";
+                if (!uri.IsDefaultPort)
+                {
+                    baseUrl += $":{uri.Port}";
+                }
+                string username = configSecure.ServerLogin;
+                string password = configSecure.ServerPassword;
+                string url = $"{baseUrl}/ocs/v2.php/cloud/users/{username}/groupFolder";
+
+                using (var client = new HttpClient())
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    client.DefaultRequestHeaders.Add("OCS-APIRequest", "true");
+
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    var xml = await response.Content.ReadAsStringAsync();
+                    var serializer = new XmlSerializer(typeof(OcsResponseModel.OcsResponse));
+                    using (var reader = new StringReader(xml))
+                    {
+                        var res = (OcsResponseModel.OcsResponse)serializer.Deserialize(reader);
+                        foreach (var folder in res.Data.Elements)
+                        {
+                            var s = "";
+                            if (folder.Id != -1 && !string.IsNullOrEmpty(folder.ParentsPath))
+                            {
+                                s = $"{ServerURL.TrimEnd('/')}/{folder.ParentsPath.TrimStart('/')}/{folder.MountPoint.TrimStart('/')}";
+                            }
+                            else if (folder.Id != -1 && string.IsNullOrEmpty(folder.ParentsPath))
+                            {
+                                s = $"{ServerURL.TrimEnd('/')}/{folder.MountPoint.TrimStart('/')}";
+                            }
+                            else if (folder.Id == -1)
+                            {
+                                s = ServerURL;
+                            }
+                            Uri oldurl = new Uri(s);
+
+                            string pathAfterIP = oldurl.AbsolutePath;
+                            if (pathAfterIP.TrimEnd('/') == driveURL.TrimEnd('/')) 
+                            {
+                                var quota = ulong.Parse(folder.Quota.ToString());
+                                var size = ulong.Parse(folder.Size.ToString());
+                                return quota - size;
+                            }
+                            
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return 0;
         }
         #region Reparse points
 
@@ -2012,6 +2094,138 @@ namespace KS2Drive.FS
         public bool Update { get; set; }
         public bool Delete { get; set; }
         public bool Share { get; set; }
+    }
+    public class ConfigSecureDrive
+    {
+        public string ServerURL { get; set; }
+        public string ServerLogin { get; set; }
+        public string ServerPassword { get; set; }
+        public bool AutoMount { get; set; }
+        public bool StartWithWindows { get; set; }
+    }
+    public class OcsResponseModel
+    {
+        [XmlRoot("ocs")]
+        public class OcsResponse
+        {
+            [XmlElement("meta")]
+            public Meta Meta { get; set; }
+            [XmlElement("data")]
+            public Data Data { get; set; }
+        }
+
+        public class Meta
+        {
+            [XmlElement("status")]
+            public string Status { get; set; }
+            [XmlElement("statuscode")]
+            public int StatusCode { get; set; }
+            [XmlElement("message")]
+            public string Message { get; set; }
+        }
+
+        public class Data
+        {
+            [XmlElement("element")]
+            public List<GroupElements> Elements { get; set; }
+        }
+
+        public class GroupElements
+        {
+            [XmlElement("id")]
+            public int Id { get; set; }
+            [XmlElement("mount_point")]
+            public string MountPoint { get; set; }
+            [XmlElement("groups")]
+            public Groups Groups { get; set; }
+            [XmlElement("quota")]
+            public long Quota { get; set; }
+            [XmlElement("size")]
+            public long Size { get; set; }
+            [XmlElement("acl")]
+            public int Acl { get; set; }
+            [XmlElement("parentspath")]
+            public string ParentsPath { get; set; }
+            [XmlArray("manage")]
+            [XmlArrayItem("element")]
+            public List<ManageEntry> Manage { get; set; }
+        }
+
+        public class ManageEntry
+        {
+            [XmlElement("type")]
+            public string Type { get; set; }
+            [XmlElement("id")]
+            public string Id { get; set; }
+            [XmlElement("displayname")]
+            public string DisplayName { get; set; }
+        }
+
+        public class Groups
+        {
+            [XmlAnyElement]
+            public XmlElement[] AnyElements { get; set; }
+
+            // Method เพื่อแปลงเป็น Dictionary ที่มี Group details
+            public Dictionary<string, GroupInfo> ToGroupDictionary()
+            {
+                var dict = new Dictionary<string, GroupInfo>();
+                if (AnyElements != null)
+                {
+                    foreach (var el in AnyElements)
+                    {
+                        var groupInfo = new GroupInfo
+                        {
+                            Name = el.Name,
+                            DisplayName = el["displayName"]?.InnerText,
+                            Type = el["type"]?.InnerText
+                        };
+
+                        // Parse permissions
+                        if (int.TryParse(el["permissions"]?.InnerText, out int permissions))
+                        {
+                            groupInfo.Permissions = permissions;
+                        }
+
+                        // Parse is_drive
+                        if (int.TryParse(el["is_drive"]?.InnerText, out int isDrive))
+                        {
+                            groupInfo.IsDrive = isDrive;
+                        }
+
+                        dict[el.Name] = groupInfo;
+                    }
+                }
+                return dict;
+            }
+
+            // Method เดิมสำหรับ backward compatibility (ถ้ามีการใช้งานอยู่)
+            public Dictionary<string, int> ToDictionary()
+            {
+                var dict = new Dictionary<string, int>();
+                if (AnyElements != null)
+                {
+                    foreach (var el in AnyElements)
+                    {
+                        if (int.TryParse(el["permissions"]?.InnerText, out int permissions))
+                        {
+                            dict[el.Name] = permissions;
+                        }
+                    }
+                }
+                return dict;
+            }
+        }
+
+        // Class สำหรับเก็บข้อมูล Group
+        public class GroupInfo
+        {
+            public string Name { get; set; }
+            public string DisplayName { get; set; }
+            public int Permissions { get; set; }
+            public int IsDrive { get; set; }
+            public string Type { get; set; }
+        }
     }
 
     /*

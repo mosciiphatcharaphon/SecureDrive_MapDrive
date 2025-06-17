@@ -172,10 +172,6 @@ namespace SecureDrive
                         File.Delete(PathConfig);
 
                     }
-                    else
-                    {
-                        this.Show();
-                    }
                 }
                 return true;
             }
