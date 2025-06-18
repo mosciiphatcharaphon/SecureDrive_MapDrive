@@ -18,7 +18,7 @@ namespace SecureDrive.Models
 
         //Drive Parameter
         public String DriveLetter { get; set; }
-        public String ServerURL { get; set; } = "http://192.168.3.113/remote.php/dav/files/admin/";
+        public String ServerURL { get; set; }
         public Int32 ServerType { get; set; } = 0;
         public String ServerLogin { get; set; }
         public String ServerPassword { get; set; }

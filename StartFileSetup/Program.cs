@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -8,24 +9,18 @@ namespace StartFileSetup
     {
         static void Main(string[] args)
         {
-            if (args.Length > 0 && args[0] == "install")
+            if (args[0] == "install")
             {
-                string filepath = AppContext.BaseDirectory;
-                string filename = "SecureDrive.exe";
-                string fullExePath = Path.Combine(filepath, filename);
-
-                if (File.Exists(fullExePath))
+                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+                if (Directory.Exists(pathKS2Drive))
                 {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = fullExePath,
-                        UseShellExecute = true,
-                        WorkingDirectory = filepath
-                    });
+                    Directory.Delete(pathKS2Drive);
                 }
-                else
+                string exePath = Process.GetCurrentProcess().MainModule.FileName;
+                exePath = $"\"{exePath}\"";
+                using (var rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", writable: true))
                 {
-                    Console.WriteLine("ไม่พบไฟล์: " + fullExePath);
+                    rkApp.DeleteValue("SecureDriveAutoMap", false);
                 }
             }
         }
