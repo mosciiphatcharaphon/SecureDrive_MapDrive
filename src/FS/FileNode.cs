@@ -107,10 +107,15 @@ namespace KS2Drive.FS
 
         public static String ConvertRepositoryPathToLocalPath(String CMISPath)
         {
-            if (CMISPath.EndsWith("/")) CMISPath = CMISPath.Substring(0, CMISPath.Length - 1);
-
+            if (CMISPath.EndsWith("/"))
+            {
+                CMISPath = CMISPath.Substring(0, CMISPath.Length - 1);
+            }
             String ReworkdPath = CMISPath.Replace(_DocumentLibraryPath, "").Replace('/', System.IO.Path.DirectorySeparatorChar);
-            if (!ReworkdPath.StartsWith(System.IO.Path.DirectorySeparatorChar.ToString())) ReworkdPath = System.IO.Path.DirectorySeparatorChar + ReworkdPath;
+            if (!ReworkdPath.StartsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
+            {
+                ReworkdPath = System.IO.Path.DirectorySeparatorChar + ReworkdPath;
+            }
             return ReworkdPath;
         }
 

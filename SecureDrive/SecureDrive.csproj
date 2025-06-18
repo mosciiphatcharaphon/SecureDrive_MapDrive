@@ -80,6 +80,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\HelperLog.cs" />
     <Compile Include="SuccessPopup.xaml.cs">
       <DependentUpon>SuccessPopup.xaml</DependentUpon>
     </Compile>

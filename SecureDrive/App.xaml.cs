@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-
+using SecureDrive.Helpers;
 namespace SecureDrive
 {
     /// <summary>
@@ -51,27 +51,35 @@ namespace SecureDrive
         }
         private void CheckSecureDriveConfig()
         {
-            string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
-            if (System.IO.File.Exists(configSecurePath))
+            try
             {
-                var configSecureJson = File.ReadAllText(configSecurePath);
-                var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
-                if (configSecure.AutoMount == true)
+                string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+                if (System.IO.File.Exists(configSecurePath))
                 {
-                    OnMountClicked(null, null);
+                    LogHelper.Log("SecureDrive Config Found: " + configSecurePath);
+                    var configSecureJson = File.ReadAllText(configSecurePath);
+                    var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
+                    if (configSecure.AutoMount == true)
+                    {
+                        LogHelper.Log("AutoMount is enabled, attempting to mount drive.");
+                        OnMountClicked(null, null);
+                    }
+                }
+                else
+                {
+                    LogHelper.Log("SecureDrive Config Not Found");
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
                 }
             }
-            else 
+            catch (Exception ex)
             {
-                var mainWindow = new MainWindow();
-                mainWindow.Show();
+                LogHelper.Log("Error in CheckSecureDriveConfig: " + ex.Message);
             }
         }
 
         private async void OnMountClicked(object sender, EventArgs e)
         {
-
-            // status:: waiting
             _notifyIcon.BalloonTipTitle = "กำลัง Mount";
             _notifyIcon.BalloonTipText = "ไดรฟ์กำลังถูก Mount กรุณารอสักครู่";
             _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
@@ -141,6 +149,13 @@ namespace SecureDrive
 
         private void OnExitClicked(object sender, EventArgs e)
         {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "taskkill",
+                Arguments = "/F /IM KS2Drive.exe",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            });
             _notifyIcon.Dispose();
             Shutdown();
         }

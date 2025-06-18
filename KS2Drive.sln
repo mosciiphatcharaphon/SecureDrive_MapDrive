@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36127.28 d17.14
+VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KS2.Drive", "src\KS2.Drive.csproj", "{5E0FD624-C176-4D4B-8B2F-C3C9BB6AFF8A}"
 EndProject
@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureDrive", "SecureDrive\SecureDrive.csproj", "{08858346-64A5-4847-B4DF-E22B1EEC0547}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Deployment SecureDrive", "Deployment SecureDrive\Deployment SecureDrive.vdproj", "{92426EB3-1E6D-AEC4-BDDC-24E21EDC2D8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartFileSetup", "StartFileSetup\StartFileSetup.csproj", "{8CD7FEE9-69B4-41D0-9A5A-A440A6AF5CC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,12 @@ Global
 		{08858346-64A5-4847-B4DF-E22B1EEC0547}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08858346-64A5-4847-B4DF-E22B1EEC0547}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08858346-64A5-4847-B4DF-E22B1EEC0547}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92426EB3-1E6D-AEC4-BDDC-24E21EDC2D8D}.Debug|Any CPU.ActiveCfg = Debug
+		{92426EB3-1E6D-AEC4-BDDC-24E21EDC2D8D}.Release|Any CPU.ActiveCfg = Release
+		{8CD7FEE9-69B4-41D0-9A5A-A440A6AF5CC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD7FEE9-69B4-41D0-9A5A-A440A6AF5CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD7FEE9-69B4-41D0-9A5A-A440A6AF5CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD7FEE9-69B4-41D0-9A5A-A440A6AF5CC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

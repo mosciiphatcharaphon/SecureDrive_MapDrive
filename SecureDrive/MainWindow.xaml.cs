@@ -20,6 +20,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml.Serialization;
 using static SecureDrive.Models.OcsResponseModel;
+using SecureDrive.Helpers;
 
 
 namespace SecureDrive
@@ -46,7 +47,7 @@ namespace SecureDrive
                 Directory.CreateDirectory(pathKS2Drive);
             }
             configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
-            if (File.Exists(configSecurePath)) 
+            if (File.Exists(configSecurePath))
             {
                 var configSecureJson = File.ReadAllText(configSecurePath);
                 var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
@@ -59,15 +60,17 @@ namespace SecureDrive
                 }
 
             }
-            
+
         }
 
         public async Task<bool> Mount()
         {
             try
             {
+                LogHelper.Log("Start Mount");
                 if (!File.Exists(configSecurePath))
                 {
+                    LogHelper.Log("SecureDrive Config Not Found: " + configSecurePath);
                     this.Show();
                     return false;
                 }
@@ -94,6 +97,7 @@ namespace SecureDrive
                 if (res?.Data?.Elements == null)
                 {
                     // ถ้าไม่สามารถดึงข้อมูลได้
+                    LogHelper.Log("Failed to retrieve group folder data or no elements found.");
                     return false;
                 }
 
@@ -131,7 +135,7 @@ namespace SecureDrive
                     else if (folder.Id == -1)
                     {
                         config.ServerURL = ServerURL;
-                        config.VolumeLabel = $"Drive is {ServerLogin}";
+                        config.VolumeLabel = $"ไดร์ฟของ {ServerLogin}";
                     }
 
                     if (IsDrive.Contains("1") || folder.Id == -1)
@@ -153,19 +157,21 @@ namespace SecureDrive
                             Drive = config.DriveLetter
                         };
                         File.WriteAllText(filePermission, JsonConvert.SerializeObject(permis));
-                        string filepath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "k2sdrive");
+                        string filepath = System.IO.Path.Combine(AppContext.BaseDirectory, "k2sdrive");
                         string filename = "KS2Drive.exe";
                         string fullExePath = System.IO.Path.Combine(filepath, filename);
                         if (File.Exists(fullExePath))
                         {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = fullExePath,
-                                UseShellExecute = true
-                            });
+                            //LogHelper.Log($"Mounting drive {config.DriveLetter} with URL: {config.ServerURL}");
+                            //Process.Start(new ProcessStartInfo
+                            //{
+                            //    FileName = fullExePath,
+                            //    UseShellExecute = true
+                            //});
                         }
                         else
                         {
+                            LogHelper.Log($"File not found: {fullExePath}");
                             //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                         Thread.Sleep(10000);
@@ -178,6 +184,7 @@ namespace SecureDrive
             catch (Exception ex)
             {
                 // log error
+                LogHelper.Log($"Error in Mount: {ex.Message}");
                 return false;
             }
         }
@@ -225,7 +232,7 @@ namespace SecureDrive
 
                 using (var client = new HttpClient())
                 {
-                    var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    var byteArray = Encoding.UTF8.GetBytes($"{username}:{password}");
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                     client.DefaultRequestHeaders.Add("OCS-APIRequest", "true");
 
@@ -292,16 +299,19 @@ namespace SecureDrive
 
             ShowSuccessPopup();
             File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
-            RegistryKey rkApp = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            if (StartWithWindowsCheckBox.IsChecked == true)
+            string exePath = Process.GetCurrentProcess().MainModule.FileName;
+            exePath = $"\"{exePath}\"";
+            using (var rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", writable: true))
             {
-                rkApp.SetValue("SecureDriveAutoMap", System.Reflection.Assembly.GetEntryAssembly().Location);
+                if (StartWithWindowsCheckBox.IsChecked == true)
+                {
+                    rkApp.SetValue("SecureDriveAutoMap", exePath);
+                }
+                else
+                {
+                    rkApp.DeleteValue("SecureDriveAutoMap", false);
+                }
             }
-            else 
-            {
-                rkApp.DeleteValue("SecureDriveAutoMap", false);
-            }
-            rkApp.Close();
         }
 
         private void ShowSuccessPopup()
@@ -413,5 +423,5 @@ namespace SecureDrive
 
     }
 
-    
+
 }

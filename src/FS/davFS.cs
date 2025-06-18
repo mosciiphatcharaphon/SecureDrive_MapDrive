@@ -83,7 +83,7 @@ namespace KS2Drive.FS
             var DavServerURI = new Uri(config.ServerURL);
             this.DAVServer = DavServerURI.GetLeftPart(UriPartial.Authority);
             this.DAVServeurAuthority = DavServerURI.DnsSafeHost;
-            this.DocumentLibraryPath = DavServerURI.PathAndQuery.EndsWith("/") ? DavServerURI.PathAndQuery.Remove(DavServerURI.PathAndQuery.Length - 1) : DavServerURI.PathAndQuery;
+            this.DocumentLibraryPath = DavServerURI.PathAndQuery.EndsWith("/") ? DavServerURI.PathAndQuery.Remove(DavServerURI.PathAndQuery.Length - 1) : DavServerURI.PathAndQuery.ToLower();
 
             this.DAVLogin = config.ServerLogin;
             this.DAVPassword = config.ServerPassword;
@@ -1878,7 +1878,7 @@ namespace KS2Drive.FS
 
                 using (var client = new HttpClient())
                 {
-                    var byteArray = Encoding.ASCII.GetBytes($"{username}:{password}");
+                    var byteArray = Encoding.UTF8.GetBytes($"{username}:{password}");
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                     client.DefaultRequestHeaders.Add("OCS-APIRequest", "true");
 
