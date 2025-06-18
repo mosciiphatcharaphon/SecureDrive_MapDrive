@@ -174,7 +174,7 @@ namespace SecureDrive
                             LogHelper.Log($"File not found: {fullExePath}");
                             //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
-                        Thread.Sleep(10000);
+                        Thread.Sleep(5000);
                         File.Delete(PathConfig);
 
                     }
@@ -290,7 +290,7 @@ namespace SecureDrive
             // ถ้าไม่เจอ error ทำการ save ต่อ
             var configSecure = new ConfigSecureDrive
             {
-                ServerURL = "https://shduat.sso.go.th/",
+                ServerURL = "http://192.168.3.113/remote.php/dav/files/",
                 ServerLogin = LoginTextBox.Text,
                 ServerPassword = PasswordBox.Password,
                 AutoMount = (bool)AutoMountCheckBox.IsChecked,

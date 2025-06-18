@@ -1742,7 +1742,7 @@ namespace KS2Drive.FS
                     var permission = JsonConvert.DeserializeObject<Permission>(data);
                     var uri = new Uri(permission.URLPath);
                     var path = uri.AbsolutePath.TrimEnd('/');
-                    if (path == RepositoryNewDocumentParentPath.TrimEnd('/'))
+                    if (path.ToLower() == RepositoryNewDocumentParentPath.TrimEnd('/').ToLower())
                     {
                         return permission.Drive;
                     }
@@ -1776,7 +1776,7 @@ namespace KS2Drive.FS
                     var uri = new Uri(permission.URLPath);
                     var path = uri.AbsolutePath.TrimEnd('/');
 
-                    if (path == RepositoryNewDocumentParentPath.TrimEnd('/'))
+                    if (path.ToLower() == RepositoryNewDocumentParentPath.TrimEnd('/').ToLower())
                     {
                         var per = permission.PermissionFolder;
                         foreach (var p in per)

@@ -5,22 +5,29 @@ using System.IO;
 
 namespace StartFileSetup
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             if (args[0] == "install")
             {
-                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
-                if (Directory.Exists(pathKS2Drive))
+                try
                 {
-                    Directory.Delete(pathKS2Drive);
+                    string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+                    if (Directory.Exists(pathKS2Drive))
+                    {
+                        Directory.Delete(pathKS2Drive);
+                    }
+                    string exePath = Process.GetCurrentProcess().MainModule.FileName;
+                    exePath = $"\"{exePath}\"";
+                    using (var rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", writable: true))
+                    {
+                        rkApp.DeleteValue("SecureDriveAutoMap", false);
+                    }
                 }
-                string exePath = Process.GetCurrentProcess().MainModule.FileName;
-                exePath = $"\"{exePath}\"";
-                using (var rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", writable: true))
+                catch (Exception e) 
                 {
-                    rkApp.DeleteValue("SecureDriveAutoMap", false);
+                    
                 }
             }
         }
