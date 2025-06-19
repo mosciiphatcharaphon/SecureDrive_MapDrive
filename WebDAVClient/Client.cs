@@ -1,6 +1,8 @@
 ﻿using NLog;
+using NLog.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,6 +14,7 @@ using System.Threading.Tasks;
 using System.Web;
 using WebDAVClient.Helpers;
 using WebDAVClient.Model;
+
 
 namespace WebDAVClient
 {
@@ -157,10 +160,13 @@ namespace WebDAVClient
             try
             {
                 response = await HttpRequest(listUri.Uri, PropFind, headers, Encoding.UTF8.GetBytes(PropFindRequestContent)).ConfigureAwait(false);
-
-                if (response.StatusCode != HttpStatusCode.OK &&
-                    (int)response.StatusCode != HttpStatusCode_MultiStatus)
+                Helpers.Log.DataLog($"response Client URL:  {listUri.Uri.ToString()}");
+                Helpers.Log.DataLog($"response Client Method: {PropFind}");
+                Helpers.Log.DataLog("response Client: " + response.ToString());
+                if (response.StatusCode != HttpStatusCode.OK && (int)response.StatusCode != HttpStatusCode_MultiStatus)
                 {
+                    Helpers.Log.DataLog("Failed StatusCode: " + response.StatusCode);
+                    Helpers.Log.DataLog("Failed retrieving items in folder: " + response.ToString());
                     throw new WebDAVException((int)response.StatusCode, "Failed retrieving items in folder.");
                 }
 

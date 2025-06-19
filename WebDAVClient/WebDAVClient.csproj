@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\Log.cs" />
     <Compile Include="Helpers\ResponseParser.cs" />
     <Compile Include="Helpers\WebDAVConflictException.cs" />
     <Compile Include="IClient.cs" />

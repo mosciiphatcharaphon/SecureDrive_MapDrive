@@ -288,9 +288,10 @@ namespace SecureDrive
             }
 
             // ถ้าไม่เจอ error ทำการ save ต่อ
+            //ServerURL = "http://192.168.3.113/remote.php/dav/files/",
             var configSecure = new ConfigSecureDrive
             {
-                ServerURL = "http://192.168.3.113/remote.php/dav/files/",
+                ServerURL = "https://shduat.sso.go.th/",
                 ServerLogin = LoginTextBox.Text,
                 ServerPassword = PasswordBox.Password,
                 AutoMount = (bool)AutoMountCheckBox.IsChecked,
