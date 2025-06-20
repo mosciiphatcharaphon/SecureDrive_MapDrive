@@ -83,7 +83,39 @@ namespace KS2Drive.FS
             var DavServerURI = new Uri(config.ServerURL);
             this.DAVServer = DavServerURI.GetLeftPart(UriPartial.Authority);
             this.DAVServeurAuthority = DavServerURI.DnsSafeHost;
-            this.DocumentLibraryPath = DavServerURI.PathAndQuery.EndsWith("/") ? DavServerURI.PathAndQuery.Remove(DavServerURI.PathAndQuery.Length - 1) : DavServerURI.PathAndQuery.ToLower();
+            if (DavServerURI.PathAndQuery.EndsWith("/"))
+            {
+                this.DocumentLibraryPath = DavServerURI.PathAndQuery.Remove(DavServerURI.PathAndQuery.Length - 1);
+            }
+            else
+            {
+                string pathAndQuery = DavServerURI.PathAndQuery;
+
+                string ConvertPercentEncodedToLower(string input)
+                {
+                    var result = new System.Text.StringBuilder();
+                    for (int i = 0; i < input.Length; i++)
+                    {
+                        if (input[i] == '%' && i + 2 < input.Length &&
+                            Uri.IsHexDigit(input[i + 1]) && Uri.IsHexDigit(input[i + 2]))
+                        {
+                            // Convert the %XX to lowercase
+                            result.Append('%');
+                            result.Append(char.ToLowerInvariant(input[i + 1]));
+                            result.Append(char.ToLowerInvariant(input[i + 2]));
+                            i += 2; // skip the next 2 characters
+                        }
+                        else
+                        {
+                            result.Append(input[i]);
+                        }
+                    }
+                    return result.ToString();
+                }
+
+                this.DocumentLibraryPath = ConvertPercentEncodedToLower(pathAndQuery);
+            }
+
 
             this.DAVLogin = config.ServerLogin;
             this.DAVPassword = config.ServerPassword;

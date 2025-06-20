@@ -55,14 +55,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KS2Drive.exe" size="130048">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KS2Drive.exe" size="130560">
       <assemblyIdentity name="KS2Drive" version="0.8.4.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>XtBljm1bXjTXMzL8FjvSHcV2A+8Fqz8LCr7EdBO+Zjw=</dsig:DigestValue>
+        <dsig:DigestValue>EStqk5MkHIo8ZAPJNCmf3UOik3MiL7AHt1lfgXhM39o=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -127,14 +127,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WebDAVClient.dll" size="33280">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WebDAVClient.dll" size="34304">
       <assemblyIdentity name="WebDAVClient" version="1.1.2.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>blmr+hpVMDQwbHwYQxYD09YjyLd7RnNn85paksKbecE=</dsig:DigestValue>
+        <dsig:DigestValue>LY6oTaOkyalkSI1wIN+v9gVm+yS/Frr/yuitMK9EoBk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
