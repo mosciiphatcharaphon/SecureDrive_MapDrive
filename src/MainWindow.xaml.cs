@@ -34,7 +34,7 @@ namespace KS2Drive
             InitializeComponent();
             AppConfiguration = ((App)Application.Current).AppConfiguration;
 
-            AppMenu = (ContextMenu)this.FindResource("NotifierContextMenu");
+            //AppMenu = (ContextMenu)this.FindResource("NotifierContextMenu");
             //((MenuItem)AppMenu.Items[0]).IsEnabled = AppConfiguration.IsConfigured;
 
             this.Hide();
@@ -63,13 +63,13 @@ namespace KS2Drive
 
             #region Icon
 
-            AppNotificationIcon = new System.Windows.Forms.NotifyIcon();
-            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/KS2Drive;component/Resources/Main.ico")).Stream;
-            AppNotificationIcon.Icon = new System.Drawing.Icon(iconStream);
-            AppNotificationIcon.Visible = true;
-            AppNotificationIcon.Text = "KS² Drive";
-            AppNotificationIcon.BalloonTipText = "KS² Drive";
-            AppNotificationIcon.MouseClick += (s, e) => { this.Dispatcher.Invoke(() => { AppMenu.IsOpen = !AppMenu.IsOpen; }); };
+            //AppNotificationIcon = new System.Windows.Forms.NotifyIcon();
+            //Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/KS2Drive;component/Resources/Main.ico")).Stream;
+            //AppNotificationIcon.Icon = new System.Drawing.Icon(iconStream);
+            //AppNotificationIcon.Visible = true;
+            //AppNotificationIcon.Text = "KS² Drive";
+            //AppNotificationIcon.BalloonTipText = "KS² Drive";
+            //AppNotificationIcon.MouseClick += (s, e) => { this.Dispatcher.Invoke(() => { AppMenu.IsOpen = !AppMenu.IsOpen; }); };
 
             #endregion
 

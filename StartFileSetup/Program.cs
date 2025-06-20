@@ -13,7 +13,7 @@ namespace StartFileSetup
             {
                 try
                 {
-                    string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+                    string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
                     if (Directory.Exists(pathKS2Drive))
                     {
                         Directory.Delete(pathKS2Drive, recursive: true);

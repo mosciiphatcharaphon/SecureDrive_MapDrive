@@ -21,14 +21,14 @@ namespace SecureDrive
     public partial class App : System.Windows.Application
     {
         private NotifyIcon _notifyIcon;
-        private string pathKS2Drive = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+        private string pathMapSecureDrive = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             InitTrayIcon();
-            if (!Directory.Exists(pathKS2Drive))
+            if (!Directory.Exists(pathMapSecureDrive))
             {
-                Directory.CreateDirectory(pathKS2Drive);
+                Directory.CreateDirectory(pathMapSecureDrive);
             }
             CheckSecureDriveConfig();
 
@@ -53,7 +53,7 @@ namespace SecureDrive
         {
             try
             {
-                string configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+                string configSecurePath = System.IO.Path.Combine(pathMapSecureDrive, "configSecure.json");
                 if (System.IO.File.Exists(configSecurePath))
                 {
                     LogHelper.Log("SecureDrive Config Found: " + configSecurePath);

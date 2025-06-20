@@ -35,18 +35,18 @@ namespace SecureDrive
         private string ServerLogin = "";
         private string ServerPassword = "";
         private string PathPermission = "";
-        private string pathKS2Drive;
+        private string pathMapSecureDrive;
         private string configSecurePath;
         private Configuration config = new Configuration();
         public MainWindow()
         {
             InitializeComponent();
-            pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
-            if (!Directory.Exists(pathKS2Drive))
+            pathMapSecureDrive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
+            if (!Directory.Exists(pathMapSecureDrive))
             {
-                Directory.CreateDirectory(pathKS2Drive);
+                Directory.CreateDirectory(pathMapSecureDrive);
             }
-            configSecurePath = System.IO.Path.Combine(pathKS2Drive, "configSecure.json");
+            configSecurePath = System.IO.Path.Combine(pathMapSecureDrive, "configSecure.json");
             if (File.Exists(configSecurePath))
             {
                 var configSecureJson = File.ReadAllText(configSecurePath);
@@ -75,13 +75,13 @@ namespace SecureDrive
                     return false;
                 }
 
-                PathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
+                PathPermission = System.IO.Path.Combine(pathMapSecureDrive, "Permission");
                 if (!Directory.Exists(PathPermission))
                 {
                     Directory.CreateDirectory(PathPermission);
                 }
 
-                PathConfig = System.IO.Path.Combine(pathKS2Drive, "config.json");
+                PathConfig = System.IO.Path.Combine(pathMapSecureDrive, "config.json");
                 if (File.Exists(PathConfig))
                 {
                     File.Delete(PathConfig);
@@ -291,7 +291,7 @@ namespace SecureDrive
             //ServerURL = "http://192.168.3.113/remote.php/dav/files/",
             var configSecure = new ConfigSecureDrive
             {
-                ServerURL = "http://192.168.3.113/remote.php/dav/files/",
+                ServerURL = "http://192.168.3.115/remote.php/dav/files/",
                 ServerLogin = LoginTextBox.Text,
                 ServerPassword = PasswordBox.Password,
                 AutoMount = (bool)AutoMountCheckBox.IsChecked,
@@ -299,7 +299,7 @@ namespace SecureDrive
             };
 
             ShowSuccessPopup();
-            File.WriteAllText(System.IO.Path.Combine(pathKS2Drive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
+            File.WriteAllText(System.IO.Path.Combine(pathMapSecureDrive, "configSecure.json"), JsonConvert.SerializeObject(configSecure, Formatting.Indented));
             string exePath = Process.GetCurrentProcess().MainModule.FileName;
             exePath = $"\"{exePath}\"";
             using (var rkApp = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", writable: true))

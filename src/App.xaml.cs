@@ -35,7 +35,7 @@ namespace KS2Drive
 
             #region Loading configuration
 
-            this.ConfigurationFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+            this.ConfigurationFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
             if (!Directory.Exists(ConfigurationFolderPath))
             {
                 try
