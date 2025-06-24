@@ -154,6 +154,7 @@ namespace SecureDrive
                         }   
                         config.ServerLogin = ServerLogin;
                         config.ServerPassword = ServerPassword;
+                        config.IDFolder = folder.Id.ToString();
 
                         byte[] databyte = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config));
                         string data = Convert.ToBase64String(databyte);
@@ -298,6 +299,7 @@ namespace SecureDrive
 
             // ถ้าไม่เจอ error ทำการ save ต่อ
             //ServerURL = "http://192.168.3.113/remote.php/dav/files/",
+            //ServerURL = "https://shduat.sso.go.th/remote.php/dav/files/"
             var configSecure = new ConfigSecureDrive
             {
                 ServerURL = "https://shduat.sso.go.th/remote.php/dav/files/",

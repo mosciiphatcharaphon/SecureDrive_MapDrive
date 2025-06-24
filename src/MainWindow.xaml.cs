@@ -144,7 +144,11 @@ namespace KS2Drive
             //((MenuItem)AppMenu.Items[0]).Header = "_UNMOUNT";
             IsMounted = true;
             //((MenuItem)AppMenu.Items[2]).IsEnabled = false;
-            Process.Start($@"{this.AppConfiguration.DriveLetter}:\");
+            if (this.AppConfiguration.IDFolder == "-1") 
+            {
+                Process.Start($@"{this.AppConfiguration.DriveLetter}:\");
+            }
+            
         }
 
         private void UnmountDrive()

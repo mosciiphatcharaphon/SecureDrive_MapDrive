@@ -73,5 +73,6 @@ namespace KS2Drive.Config
         public String VolumeLabel { get; set; }
         public ulong quota { get; set; }
         public ulong size { get; set; }
+        public String IDFolder { get; set; }
     }
 }
