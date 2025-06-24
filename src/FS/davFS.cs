@@ -1766,7 +1766,7 @@ namespace KS2Drive.FS
             try
             {
                 var permissionList = new Dictionary<String, Boolean>(StringComparer.OrdinalIgnoreCase);
-                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
                 string pathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
                 string[] files = Directory.GetFiles(pathPermission, "*.json", SearchOption.AllDirectories);
                 foreach (var file in files)
