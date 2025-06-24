@@ -15,7 +15,7 @@ namespace WebDAVClient.Helpers
             try
             {
                 string todayFolder = DateTime.Today.Date.ToString("yyyy'-'MM'-'dd");
-                string logLocation = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive", "Logs");
+                string logLocation = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive", "Logs");
                 if (!Directory.Exists(logLocation))
                     Directory.CreateDirectory(logLocation);
                 string LogFullPath = logLocation + "\\" + todayFolder;

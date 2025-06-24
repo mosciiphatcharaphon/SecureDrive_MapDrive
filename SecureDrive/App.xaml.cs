@@ -31,7 +31,6 @@ namespace SecureDrive
                 Directory.CreateDirectory(pathMapSecureDrive);
             }
             CheckSecureDriveConfig();
-
         }
 
         private void InitTrayIcon()
@@ -80,9 +79,9 @@ namespace SecureDrive
 
         private async void OnMountClicked(object sender, EventArgs e)
         {
-            _notifyIcon.BalloonTipTitle = "กำลัง Mount";
-            _notifyIcon.BalloonTipText = "ไดรฟ์กำลังถูก Mount กรุณารอสักครู่";
-            _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+            _notifyIcon.BalloonTipTitle = "Mount Drive";
+            _notifyIcon.BalloonTipText = "The drive is being mounted. Please wait.";
+            _notifyIcon.BalloonTipIcon = ToolTipIcon.Info; 
             _notifyIcon.ShowBalloonTip(100);
 
             var mainWindow = new MainWindow();
@@ -91,8 +90,8 @@ namespace SecureDrive
             if (success)
             {
                 // status:: success
-                _notifyIcon.BalloonTipTitle = "Mount เรียบร้อย";
-                _notifyIcon.BalloonTipText = "ไดรฟ์ถูก Mount สำเร็จ";
+                _notifyIcon.BalloonTipTitle = "Mount Drive";
+                _notifyIcon.BalloonTipText = "The drive was successfully mounted.";
                 _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
                 _notifyIcon.ShowBalloonTip(100);
 
@@ -105,8 +104,13 @@ namespace SecureDrive
             else
             {
                 System.Windows.Forms.MessageBox.Show("Mount ไม่สำเร็จ", "เกิดข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // เปิดหน้าตั้งค่า Config
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "taskkill",
+                    Arguments = "/F /IM KS2Drive.exe",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                });
                 var configWindow = new MainWindow();
                 // ส่งข้อความ error
                 configWindow.ShowGeneralError("ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบ Login หรือ Password");
@@ -126,8 +130,8 @@ namespace SecureDrive
             });
 
             // status:: unmount success
-            _notifyIcon.BalloonTipTitle = "UnMount เรียบร้อย";
-            _notifyIcon.BalloonTipText = "ไดรฟ์ถูก UnMount สำเร็จ";
+            _notifyIcon.BalloonTipTitle = "Unmount Drive";
+            _notifyIcon.BalloonTipText = "The drive was successfully unmounted";
             _notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
             _notifyIcon.ShowBalloonTip(100);
 

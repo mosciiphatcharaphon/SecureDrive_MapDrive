@@ -141,8 +141,17 @@ namespace SecureDrive
                     if (IsDrive.Contains("1") || folder.Id == -1)
                     {
                         config.DriveLetter = GetNextDriveLetter(ref driveLetter);
-                        config.quota = ulong.Parse(folder.Quota.ToString());
-                        config.size = ulong.Parse(folder.Size.ToString());
+                        if (folder.Quota <= 0)
+                        {
+                            var defaultQuota = 10995116277760; // 10 TB in bytes
+                            config.quota = ulong.Parse(defaultQuota.ToString());
+                            config.size = ulong.Parse(defaultQuota.ToString());
+                        }
+                        else 
+                        {
+                            config.quota = ulong.Parse(folder.Quota.ToString());
+                            config.size = ulong.Parse(folder.Size.ToString());
+                        }   
                         config.ServerLogin = ServerLogin;
                         config.ServerPassword = ServerPassword;
 
@@ -162,19 +171,19 @@ namespace SecureDrive
                         string fullExePath = System.IO.Path.Combine(filepath, filename);
                         if (File.Exists(fullExePath))
                         {
-                            //LogHelper.Log($"Mounting drive {config.DriveLetter} with URL: {config.ServerURL}");
-                            //Process.Start(new ProcessStartInfo
-                            //{
-                            //    FileName = fullExePath,
-                            //    UseShellExecute = true
-                            //});
+                            LogHelper.Log($"Mounting drive {config.DriveLetter} with URL: {config.ServerURL}");
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = fullExePath,
+                                UseShellExecute = true
+                            });
                         }
                         else
                         {
                             LogHelper.Log($"File not found: {fullExePath}");
                             //MessageBox.Show($"ไม่พบไฟล์: {fullExePath}", "ไม่พบไฟล์", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
-                        //Thread.Sleep(5000);
+                        Thread.Sleep(5000);
                         File.Delete(PathConfig);
 
                     }
@@ -291,7 +300,7 @@ namespace SecureDrive
             //ServerURL = "http://192.168.3.113/remote.php/dav/files/",
             var configSecure = new ConfigSecureDrive
             {
-                ServerURL = "http://192.168.3.115/remote.php/dav/files/",
+                ServerURL = "https://shduat.sso.go.th/remote.php/dav/files/",
                 ServerLogin = LoginTextBox.Text,
                 ServerPassword = PasswordBox.Password,
                 AutoMount = (bool)AutoMountCheckBox.IsChecked,

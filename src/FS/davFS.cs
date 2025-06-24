@@ -1013,7 +1013,8 @@ namespace KS2Drive.FS
                         }
                     }
                 }
-
+                var exisDrive = $@"{Drive}:\";
+                SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, Marshal.StringToHGlobalUni(exisDrive), IntPtr.Zero);
                 /*
                 FileNode FileNode = (FileNode)FileNode0;
 
@@ -1793,7 +1794,7 @@ namespace KS2Drive.FS
             try
             {
                 var permissionList = new Dictionary<String, Boolean>(StringComparer.OrdinalIgnoreCase);
-                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive");
+                string pathKS2Drive = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive");
                 string pathPermission = System.IO.Path.Combine(pathKS2Drive, "Permission");
                 string[] files = Directory.GetFiles(pathPermission, "*.json", SearchOption.AllDirectories);
                 bool Create = true;
@@ -1893,7 +1894,7 @@ namespace KS2Drive.FS
         {
             try
             {
-                string configSecurePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KS2Drive", "configSecure.json");
+                string configSecurePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MapSecureDrive", "configSecure.json");
                 var configSecureJson = File.ReadAllText(configSecurePath);
                 var configSecure = JsonConvert.DeserializeObject<ConfigSecureDrive>(configSecureJson);
 
